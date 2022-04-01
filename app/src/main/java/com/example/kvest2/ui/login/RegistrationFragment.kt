@@ -1,15 +1,16 @@
 package com.example.kvest2.ui.login
 
+import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.kvest2.databinding.RegistrationFragmentBinding
+import com.example.kvest2.ui.MainActivity
+import com.example.kvest2.ui.afterTextChanged
 
 class RegistrationFragment : Fragment() {
 
@@ -31,28 +32,51 @@ class RegistrationFragment : Fragment() {
         viewModel = ViewModelProvider(this, RegistrationViewModelFactory(requireContext()))
             .get(RegistrationViewModel::class.java)
 
-        binding.name.afterTextChanged {
+        val username = binding.username
+        val password = binding.password
+        val name = binding.name
+        val phone = binding.phone
 
+        fun dataChanged() = viewModel.registrationDataChanged (
+            username.text.toString(),
+            password.text.toString(),
+            name.text.toString(),
+            phone.text.toString()
+        )
+
+        arrayOf(username, password, name, phone).forEach {
+            it.afterTextChanged {
+                dataChanged()
+            }
         }
 
-        viewModel.registration("hello", "hello", "dan", "342342342")
+        // если форма корректно заполняется, то кнопка становится доступной
+        viewModel.registrationFormState.observe(viewLifecycleOwner) {
+            binding.registration.isEnabled = it.isDataValid
+        }
+
+        // регистрируем если данные гуд
+        binding.registration.setOnClickListener {
+            viewModel.registrationFormState.observe(viewLifecycleOwner) {
+                if (it.isDataValid) {
+                    viewModel.registration (
+                        username.text.toString(),
+                        password.text.toString(),
+                        name.text.toString(),
+                        phone.text.toString()
+                    )
+                }
+            }
+        }
+
+        // отслеживаем юзера, если он был зареган, считаем его авторизовавшимся
+        viewModel.loggedUser.observe(viewLifecycleOwner) {
+            if (it.user != null) {
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                startActivity(intent)
+            }
+        }
 
         return binding.root
     }
-}
-
-
-/**
- * Extension function to simplify setting an afterTextChanged action to EditText components.
- */
-fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
-    this.addTextChangedListener(object : TextWatcher {
-        override fun afterTextChanged(editable: Editable?) {
-            afterTextChanged.invoke(editable.toString())
-        }
-
-        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-    })
 }
