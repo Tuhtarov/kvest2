@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">Квест</string>
+
+    <!-- Strings related to registration -->
+    <string name="prompt_name">Имя</string>
+    <string name="prompt_phone">Телефон</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Логин</string>
+    <string name="prompt_password">Пароль</string>
+    <string name="action_sign_in">Войти</string>
+    <string name="action_confirm">Принять</string>
+    <string name="action_sign_in_short">Войти</string>
+    <string name="action_register">Регистрация</string>
+    <string name="welcome">"Добро пожаловать!"</string>
+    <string name="invalid_username">Неверный логин</string>
+    <string name="invalid_login">Неверный логин</string>
+    <string name="invalid_password">Пароль должен быть > 5 символов</string>
+    <string name="invalid_name">Некорректное имя</string>
+    <string name="invalid_phone">Некорректный телефон</string>
+    <string name="login_failed">"Ошибка авторизации"</string>
+    <string name="title_activity_maps">Карта</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">Главное</string>
+    <string name="second_fragment_label">Геометки</string>
+    <string name="next">Вперёд</string>
+    <string name="previous">Назад</string>
+
+    <!-- Навигация -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Настройки</string>
+
+    <string name="menu_home">Главное</string>
+    <string name="menu_events">Квесты</string>
+    <string name="menu_map">Карта</string>
+
+    <string name="menu_gallery">ffsdf</string>
+    <string name="menu_slideshow">sdf</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
