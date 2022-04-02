@@ -1,8 +1,6 @@
 package com.example.kvest2.data.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
-import com.example.kvest2.R
 import com.example.kvest2.data.entity.User
 import com.example.kvest2.data.entity.UserDao
 import com.example.kvest2.data.model.LoggedUser
@@ -14,18 +12,19 @@ class UserRepository(private val userDao: UserDao) {
         userDao.addUser(user)
     }
 
-    suspend fun registration(login: String, pwd: String, name: String, phone: String): User {
-        val user = User(0, login, pwd, name, phone)
+    private suspend fun registration(username: String): User {
+        val user = User(0, username)
         addUser(user)
         return user
     }
 
-    suspend fun login(login: String, pwd: String): LoggedUser {
-        val user = userDao.findByLogin(login).firstOrNull()
+    suspend fun findOrCreate(username: String): LoggedUser {
+        var user = userDao.findByUsername(username).firstOrNull()
 
-        return if (user?.password?.lowercase() == pwd.lowercase())
-            LoggedUser(user = user)
-        else
-            LoggedUser(authError = R.string.invalid_password_or_username)
+        if (user == null) {
+            user = registration(username)
+        }
+
+        return LoggedUser(user = user)
     }
 }

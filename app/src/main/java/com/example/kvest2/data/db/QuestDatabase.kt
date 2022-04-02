@@ -4,12 +4,30 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.kvest2.data.entity.User
 import com.example.kvest2.data.entity.UserDao
 
-@Database(entities = [User::class], version = 1, exportSchema = false)
-abstract class QuestDatabase: RoomDatabase() {
+val recreateUserTable = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("DROP TABLE IF EXISTS ${User.TABLE_NAME}")
+        database.execSQL("CREATE TABLE IF NOT EXISTS ${User.TABLE_NAME} (`id` INTEGER PRIMARY KEY NOT NULL, name TEXT NOT NULL)")
+    }
+}
 
+val addColumnIsLoggedToUserTable = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE ${User.TABLE_NAME} ADD is_logged INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+@Database(
+    entities = [User::class],
+    version = 3,
+    exportSchema = false
+)
+abstract class QuestDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
 
     companion object {
@@ -26,7 +44,9 @@ abstract class QuestDatabase: RoomDatabase() {
                     context.applicationContext,
                     QuestDatabase::class.java,
                     "quest_database"
-                ).build()
+                )
+                    .addMigrations(recreateUserTable, addColumnIsLoggedToUserTable)
+                    .build()
 
                 INSTANCE = instance
                 return instance

@@ -14,6 +14,6 @@ interface UserDao {
     @Query("SELECT * FROM user ORDER BY id ASC")
     fun readAll(): LiveData<List<User>>
 
-    @Query("SELECT * FROM user WHERE login LIKE :l LIMIT 1")
-    fun findByLogin(l: String): List<User?>
+    @Query("SELECT * FROM user WHERE name LIKE :u LIMIT 1")
+    fun findByUsername(u: String): List<User>
 }

@@ -28,6 +28,23 @@ android {
                 ]
             }
         }
+
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+//            }
+//        }
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
+    }
+
+    sourceSets {
+        // Adds exported schema location as test app assets.
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
 
     buildTypes {
@@ -58,6 +75,7 @@ dependencies {
     kapt "androidx.room:room-compiler:2.4.2"
     implementation "androidx.room:room-ktx:2.4.2"
     androidTestImplementation "androidx.room:room-testing:2.4.2"
+
 
     // Lifecycle components
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"

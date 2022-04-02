@@ -2,12 +2,14 @@
     <string name="app_name">Квест</string>
 
     <!-- Strings related to registration -->
-    <string name="prompt_name">Имя</string>
-    <string name="prompt_phone">Телефон</string>
-
     <!-- Strings related to login -->
+    <string name="prompt_name">Имя</string>
+    <string name="prompt_your_name">Ваше имя</string>
+    <string name="prompt_phone">Телефон</string>
     <string name="prompt_email">Логин</string>
     <string name="prompt_password">Пароль</string>
+
+
     <string name="action_sign_in">Войти</string>
     <string name="action_confirm">Принять</string>
     <string name="action_sign_in_short">Войти</string>
@@ -19,6 +21,7 @@
     <string name="invalid_name">Некорректное имя</string>
     <string name="invalid_phone">Некорректный телефон</string>
     <string name="login_failed">"Ошибка авторизации"</string>
+
     <string name="title_activity_maps">Карта</string>
     <string name="title_activity_main">MainActivity</string>
 
@@ -28,11 +31,13 @@
     <string name="next">Вперёд</string>
     <string name="previous">Назад</string>
 
+    <!-- Шапка в навигации -->
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">Проходи квесты, и выполняй задания!</string>
+
     <!-- Навигация -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Настройки</string>
 
