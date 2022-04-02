@@ -1,15 +1,13 @@
 package com.example.kvest2.ui.login
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.kvest2.R
 import com.example.kvest2.data.model.LoggedUser
 import com.example.kvest2.data.repository.UserRepository
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
@@ -19,23 +17,30 @@ class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _loggedUser = MutableLiveData<LoggedUser>()
     val loggedUser: LiveData<LoggedUser> = _loggedUser
 
+    fun findCurrentUser() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val loggedUser = userRepository.findLoggedUser()
 
-    fun loginDataChanged(login: String) {
-        if (login.length < 5) {
-            _loginFormState.value = LoginFormState(usernameError  = R.string.invalid_name)
-        } else {
-            _loginFormState.value = LoginFormState(isDataValid = true)
+            _loggedUser.postValue(loggedUser)
         }
     }
 
-    @DelicateCoroutinesApi
-    fun signIn(username: String) {
-        GlobalScope.launch(Dispatchers.Default) {
-            val loggedUser = userRepository.findOrCreate(username)
+    fun loginDataChanged(login: String) {
+        if (login.length < 5)
+            _loginFormState.value = LoginFormState(usernameError  = R.string.invalid_name)
+        else
+            _loginFormState.value = LoginFormState(isDataValid = true)
+    }
 
-            if (loggedUser.user != null) {
-                _loggedUser.postValue(loggedUser)
-            }
+    fun signIn(username: String) {
+        viewModelScope.launch(Dispatchers.Default) {
+            val user = userRepository.findOrCreate(username)
+
+            // помечаем пользователя как авторизованного
+            user.isLogged = true
+            userRepository.updateUser(user)
+
+            _loggedUser.postValue(LoggedUser(user = user))
         }
     }
 }

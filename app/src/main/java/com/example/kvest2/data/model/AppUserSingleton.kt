@@ -5,13 +5,15 @@ import com.example.kvest2.data.entity.User
 object AppUserSingleton {
     private var user: User? = null
 
-    public fun userNotNull(): Boolean = user != null
+    fun getUser(): User? {
+        return user
+    }
 
-    public fun getUser(): User? = user
+    fun setUser(u: User) {
+        user = u
+    }
 
-    public fun setUser(u: User) {
-        if (user != null) {
-            user = u
-        }
+    fun clearUser() {
+        user = null
     }
 }

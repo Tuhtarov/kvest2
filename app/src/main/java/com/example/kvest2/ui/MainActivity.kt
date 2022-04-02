@@ -1,7 +1,7 @@
 package com.example.kvest2.ui
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -12,9 +12,14 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.kvest2.R
+import com.example.kvest2.data.db.QuestDatabase
 import com.example.kvest2.data.model.AppUserSingleton
+import com.example.kvest2.data.repository.UserRepository
 import com.example.kvest2.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -22,12 +27,27 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.navView.getHeaderView(0).findViewById<TextView>(R.id.navHeaderTitle)
-            .text = AppUserSingleton.getUser()?.name
+        val userDao = QuestDatabase.getDatabase(applicationContext).userDao()
+        val userRepository = UserRepository(userDao)
+        val currentUser = AppUserSingleton.getUser()!!
+
+        val header = binding.navView.getHeaderView(0)
+
+        header.findViewById<TextView>(R.id.navHeaderTitle).text = currentUser.name
+
+        header.findViewById<TextView>(R.id.exitLink).setOnClickListener {
+            GlobalScope.launch(Dispatchers.Default) {
+                userRepository.signOutUser(currentUser)
+                AppUserSingleton.clearUser()
+
+                // переходим на страницу авторизации приложения
+                val intent = Intent(applicationContext, LoginActivity::class.java)
+                startActivity(intent)
+            }
+        }
 
         setSupportActionBar(binding.appBarMain.toolbar)
 

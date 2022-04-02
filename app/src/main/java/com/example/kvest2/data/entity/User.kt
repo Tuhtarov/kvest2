@@ -8,10 +8,10 @@ import androidx.room.PrimaryKey
 data class User (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val name: String,
+    var name: String,
 
     @ColumnInfo(name = "is_logged")
-    val isLogged: Boolean = false
+    var isLogged: Boolean = false
 ) {
     companion object {
         const val TABLE_NAME = "user"

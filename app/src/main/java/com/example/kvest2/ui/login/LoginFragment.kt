@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.kvest2.data.model.AppUserSingleton
@@ -49,7 +52,10 @@ class LoginFragment : Fragment() {
             viewModel.signIn(username.text.toString())
         }
 
-        // отслеживаем юзера, авторизован или нет
+        // выполняем поиск текущего пользователя (зарегистрированного)
+        viewModel.findCurrentUser()
+
+        // отслеживаем состояние юзера, авторизован или нет
         viewModel.loggedUser.observe(viewLifecycleOwner) {
             if (it.user != null) {
                 AppUserSingleton.setUser(it.user)
@@ -57,6 +63,10 @@ class LoginFragment : Fragment() {
                 // переходим в главный экран приложения
                 val intent = Intent(requireContext(), MainActivity::class.java)
                 startActivity(intent)
+            } else {
+                // отключаем прогресс бар, включаем форму авторизации
+                binding.progressCV.visibility = CardView.INVISIBLE
+                binding.loginFormCV.visibility = CardView.VISIBLE
             }
         }
 
