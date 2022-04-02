@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.kvest2.data.entity.User
-import com.example.kvest2.data.entity.UserDao
+import com.example.kvest2.data.dao.UserDao
 
 val recreateUserTable = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {

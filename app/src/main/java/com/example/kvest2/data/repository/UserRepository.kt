@@ -1,9 +1,8 @@
 package com.example.kvest2.data.repository
 
 import androidx.lifecycle.LiveData
-import com.example.kvest2.R
 import com.example.kvest2.data.entity.User
-import com.example.kvest2.data.entity.UserDao
+import com.example.kvest2.data.dao.UserDao
 import com.example.kvest2.data.model.LoggedUser
 
 class UserRepository(private val userDao: UserDao) {
