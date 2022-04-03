@@ -1,10 +1,10 @@
 package com.example.kvest2.data.entity
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 
-@Entity(tableName = Quest.TABLE_NAME)
+@Entity (
+    tableName = Quest.TABLE_NAME,
+)
 data class Quest (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
@@ -12,7 +12,7 @@ data class Quest (
     val description: String,
 
     @ColumnInfo(name = "created_at")
-    val createdAt: Long
+    val createdAt: String
 ) {
     companion object {
         const val TABLE_NAME = "quest"

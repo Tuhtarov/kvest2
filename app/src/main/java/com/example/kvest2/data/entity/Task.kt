@@ -1,14 +1,32 @@
 package com.example.kvest2.data.entity
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 
-@Entity(tableName = Task.TABLE_NAME)
+@Entity (
+    tableName = Task.TABLE_NAME,
+    foreignKeys = [
+        ForeignKey (
+            entity = Quest::class,
+            parentColumns = ["id"],
+            childColumns = ["quest_id"],
+        ),
+        ForeignKey (
+            entity = Answer::class,
+            parentColumns = ["id"],
+            childColumns = ["correct_answer_id"],
+        )
+    ]
+)
 data class Task (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
+
+    @ColumnInfo(name = "quest_id", index = true)
     val questId: Int? = null,
+
+    @ColumnInfo(name = "correct_answer_id", index = true)
     val correctAnswerId: Int,
+
     val question: String,
     val latitude: String,
     val longitude: String,
