@@ -1,7 +1,9 @@
 package com.example.kvest2.data.entity
 
-import androidx.room.*
-import androidx.room.ForeignKey.CASCADE
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
 
 @Entity (
     tableName = QuestUser.TABLE_NAME,

@@ -1,7 +1,6 @@
 package com.example.kvest2.data.entity
 
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity (
