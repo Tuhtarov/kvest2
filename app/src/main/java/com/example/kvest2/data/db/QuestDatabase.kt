@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.kvest2.data.dao.QuestDao
 import com.example.kvest2.data.dao.UserDao
 import com.example.kvest2.data.entity.*
 
@@ -93,6 +94,8 @@ val addNewColumns = object : Migration(3, 4) {
 )
 abstract class QuestDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
+
+    abstract fun questDao(): QuestDao
 
     companion object {
         @Volatile
