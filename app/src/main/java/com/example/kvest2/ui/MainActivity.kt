@@ -1,10 +1,17 @@
 package com.example.kvest2.ui
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
+import android.view.View
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -17,6 +24,7 @@ import com.example.kvest2.data.model.AppUserSingleton
 import com.example.kvest2.data.repository.UserRepository
 import com.example.kvest2.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -25,10 +33,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
+    private lateinit var layout: View
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val view = binding.root
+        layout = binding.drawerLayout
 
         val userDao = QuestDatabase.getDatabase(applicationContext).userDao()
         val userRepository = UserRepository(userDao)
@@ -63,6 +76,8 @@ class MainActivity : AppCompatActivity() {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        onClickRequestPermission(view)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -76,4 +91,69 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
     }
+
+    fun View.showSnackbar(
+        view: View,
+        msg: String,
+        length: Int,
+        actionMessage: CharSequence?,
+        action: (View) -> Unit
+    ) {
+        val snackbar = Snackbar.make(view, msg, length)
+        if (actionMessage != null) {
+            snackbar.setAction(actionMessage) {
+                action(this)
+            }.show()
+        } else {
+            snackbar.show()
+        }
+    }
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Log.i("Permission: ", "Granted")
+            } else {
+                Log.i("Permission: ", "Denied")
+            }
+        }
+    fun onClickRequestPermission(view: View) {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                layout.showSnackbar(
+                    view,
+                    getString(R.string.permission_granted),
+                    Snackbar.LENGTH_SHORT,
+                    null
+                ) {}
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.CAMERA
+            ) -> {
+                layout.showSnackbar(
+                    view,
+                    getString(R.string.permission_required),
+                    Snackbar.LENGTH_INDEFINITE,
+                    getString(R.string.ok)
+                ) {
+                    requestPermissionLauncher.launch(
+                        Manifest.permission.CAMERA
+                    )
+                }
+            }
+
+            else -> {
+                requestPermissionLauncher.launch(
+                    Manifest.permission.CAMERA
+                )
+            }
+        }
+    }
+
 }

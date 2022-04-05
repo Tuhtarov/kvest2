@@ -55,4 +55,8 @@
     <string name="invalid_password_or_username">Неверный логин или пароль</string>
     <string name="exit">Выйти</string>
     <string name="error_user_is_unlogged">Пользователь не авторизован</string>
+
+    <string name="permission_required">Требуется разрешение на съёмку</string>
+    <string name="permission_granted">Разрешение на съёмку дано</string>
+    <string name="ok">OK</string>
 </resources>
