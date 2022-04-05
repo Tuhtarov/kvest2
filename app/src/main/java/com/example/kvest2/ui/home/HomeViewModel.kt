@@ -11,6 +11,7 @@ import java.util.jar.Manifest
 
 class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
     /** A safe way to get an instance of the Camera object. */
+
     fun getCameraInstance(): Camera? {
         return try {
             Camera.open() // attempt to get a Camera instance
@@ -19,6 +20,7 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
             null // returns null if camera is unavailable
         }
     }
+
 
 
 }

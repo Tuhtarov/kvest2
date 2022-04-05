@@ -33,50 +33,186 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: HomeViewModel
 
     private lateinit var binding: HomeFragmentBinding
-    private val CAMERA_REQUEST_CODE = 10001
+
     private lateinit var layout: View
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                Log.i("Permission: ", "Granted")
-            } else {
-                Log.i("Permission: ", "Denied")
-            }
-        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         viewModel = ViewModelProvider(this, HomeViewModelFactory(requireContext()))
             .get(HomeViewModel::class.java)
 
         binding = HomeFragmentBinding.inflate(inflater, container, false)
 
+        val view = binding.root
+        layout = binding.frameLayout
+
+        onRequestLocationPermissions(view)
+        onRequestCameraPermission(view)
+
         startCamera()
 
         return binding.root
     }
-    private  fun startCamera()
-    {
-        var mCamera: Camera? = null
 
-        mCamera = viewModel.getCameraInstance()
 
-        var mPreview: CameraPreview? = null
 
-        mPreview = mCamera?.let {
-            CameraPreview(requireContext(), it)
+
+
+
+        private fun startCamera() {
+            var mCamera = viewModel.getCameraInstance()
+
+            var mPreview: CameraPreview? = null
+
+            mPreview = mCamera?.let {
+                CameraPreview(requireContext(), it)
+            }
+            mPreview?.also {
+                val preview: FrameLayout = binding.cameraPreview
+                preview.addView(it)
+            }
         }
-        mPreview?.also {
-            val preview: FrameLayout = binding.cameraPreview
-            preview.addView(it)
+
+        private fun View.showSnackbar(
+            view: View,
+            msg: String,
+            length: Int,
+            actionMessage: CharSequence?,
+            action: (View) -> Unit
+        ) {
+            val snackbar = Snackbar.make(view, msg, length)
+            if (actionMessage != null) {
+                snackbar.setAction(actionMessage) {
+                    action(this)
+                }.show()
+            } else {
+                snackbar.show()
+            }
         }
+
+        private val requestPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted: Boolean ->
+                if (isGranted) {
+                    Log.i("Permission: ", "Granted")
+                } else {
+                    Log.i("Permission: ", "Denied")
+                }
+            }
+
+        private fun onRequestLocationPermissions(view: View) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    layout.showSnackbar(
+                        view,
+                        getString(R.string.location_permission_granted),
+                        Snackbar.LENGTH_SHORT,
+                        null
+                    ) {}
+                }
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    layout.showSnackbar(
+                        view,
+                        getString(R.string.location_permission_granted),
+                        Snackbar.LENGTH_SHORT,
+                        null
+                    ) {}
+                }
+
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) -> {
+                    layout.showSnackbar(
+                        view,
+                        getString(R.string.location_permission_required),
+                        Snackbar.LENGTH_INDEFINITE,
+                        getString(R.string.ok)
+                    ) {
+                        requestPermissionsLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+                    }
+                }
+                else -> requestPermissionsLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                )
+            }
+        }
+
+        private fun onRequestCameraPermission(view: View) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    layout.showSnackbar(
+                        view,
+                        getString(R.string.camera_permission_granted),
+                        Snackbar.LENGTH_SHORT,
+                        null
+                    ) {}
+                }
+
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    Manifest.permission.CAMERA
+                ) -> {
+                    layout.showSnackbar(
+                        view,
+                        getString(R.string.camera_permission_required),
+                        Snackbar.LENGTH_INDEFINITE,
+                        getString(R.string.ok)
+                    ) {
+                        requestPermissionLauncher.launch(
+                            Manifest.permission.CAMERA
+                        )
+                    }
+                }
+
+                else -> {
+                    requestPermissionLauncher.launch(
+                        Manifest.permission.CAMERA
+                    )
+
+                }
+            }
+        }
+
+
+        private val requestPermissionsLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                    Log.i("Permission FINE_LOCATION: ", "Granted")
+                }
+                permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                    // Only approximate location access granted.
+                    Log.i("Permission COARSE_LOCATION: ", "Granted")
+                }
+                else -> {
+                    // No location access granted.
+                    Log.i("Permission: ", "Denied")
+                }
+            }
+        }
+
     }
-
-
-
-}

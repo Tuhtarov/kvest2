@@ -56,7 +56,9 @@
     <string name="exit">Выйти</string>
     <string name="error_user_is_unlogged">Пользователь не авторизован</string>
 
-    <string name="permission_required">Требуется разрешение на съёмку</string>
-    <string name="permission_granted">Разрешение на съёмку дано</string>
+    <string name="camera_permission_required">Требуется разрешение на съёмку</string>
+    <string name="location_permission_required">Требуется разрешение на геопозицию</string>
+    <string name="camera_permission_granted">Разрешение на съёмку дано</string>
+    <string name="location_permission_granted">Разрешение на геопозицию дано</string>
     <string name="ok">OK</string>
 </resources>

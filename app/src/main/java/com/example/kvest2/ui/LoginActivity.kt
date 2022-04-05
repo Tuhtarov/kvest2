@@ -1,10 +1,14 @@
 package com.example.kvest2.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.kvest2.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
@@ -18,7 +22,6 @@ class LoginActivity : AppCompatActivity() {
 
     }
 }
-
 
 /**
  * Extension function to simplify setting an afterTextChanged action to EditText components.
