@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/choose_quest_dialog_fragment"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingHorizontal="15dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/text_container"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingBottom="25dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Картинка квеста -->
+        <ImageView
+            android:src="@mipmap/ic_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Информация -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:paddingStart="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/quest_title"
+                android:text="Название квеста"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/quest_description"
+                android:text="Описание квеста"
+                android:textSize="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/quest_created_at"
+                android:text="Дата создания: %s"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:minWidth="300dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Кнопка выбора квеста -->
+        <Button
+            android:id="@+id/dialog_close_btn"
+            android:text="Закрыть"
+            android:backgroundTint="#EC407A"
+            android:layout_alignParentStart="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Кнопка закрытия диалогового окна -->
+        <Button
+            android:id="@+id/quest_choose_btn"
+            android:text="Начать"
+            android:backgroundTint="#26c6da"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

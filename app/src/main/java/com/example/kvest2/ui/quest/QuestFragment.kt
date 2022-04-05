@@ -8,10 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kvest2.data.entity.Quest
+import com.example.kvest2.data.model.AppUserSingleton
 import com.example.kvest2.databinding.QuestFragmentBinding
+import com.example.kvest2.ui.quest.dialog.ChooseQuestDialogFragment
+
 
 class QuestFragment : Fragment() {
-
     companion object {
         fun newInstance() = QuestFragment()
     }
@@ -22,8 +24,9 @@ class QuestFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = QuestFragmentBinding.inflate(layoutInflater, container, false)
+    ): View {
+        binding = QuestFragmentBinding.inflate(inflater, container, false)
+        val currentUser = AppUserSingleton.getUser()
 
         viewModel = ViewModelProvider(this, QuestViewModelFactory(binding.root.context))
             .get(QuestViewModel::class.java)
@@ -32,7 +35,11 @@ class QuestFragment : Fragment() {
             questRecycleView.layoutManager = LinearLayoutManager(context)
 
             viewModel.quests.observe(viewLifecycleOwner) {
-                questRecycleView.adapter = QuestAdapter(it)
+                questRecycleView.adapter = QuestAdapter(it) { quest ->
+                    ChooseQuestDialogFragment(quest) {
+                        viewModel.setChosenQuest(quest, currentUser!!)
+                    }.show(parentFragmentManager, "dialog-choose-quest")
+                }
             }
 
             testBtnForAddQuest.setOnClickListener {
