@@ -12,4 +12,8 @@ class QuestRepository(private val questDao: QuestDao) {
     fun addQuest(quest: Quest) {
         questDao.addQuest(quest)
     }
+
+    fun findById(questId: Int): Quest? {
+        return questDao.findById(questId)
+    }
 }

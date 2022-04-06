@@ -1,9 +1,6 @@
 package com.example.kvest2.data.entity
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
 
 @Entity (
     tableName = QuestUser.TABLE_NAME,
@@ -22,17 +19,22 @@ import androidx.room.PrimaryKey
 )
 data class QuestUser (
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    var id: Int,
 
     @ColumnInfo(name = "quest_id", index = true)
-    val questId: Int,
+    var questId: Int,
 
     @ColumnInfo(name = "user_id", index = true)
-    val userId: Int,
+    var userId: Int,
 
     @ColumnInfo(name = "is_current", defaultValue = "0")
-    val isCurrent: Boolean = false
+    var isCurrent: Boolean = false,
+
+    @Ignore
+    var quest: Quest? = null
 ) {
+    constructor() : this(0, 0, 0, false, null)
+
     companion object {
         const val TABLE_NAME = "quest_user"
     }

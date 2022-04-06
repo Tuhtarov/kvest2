@@ -43,6 +43,7 @@
 
     <string name="menu_home">Главное</string>
     <string name="menu_events">Квесты</string>
+    <string name="my_quests">Мои квесты</string>
     <string name="menu_map">Карта</string>
 
     <string name="menu_gallery">ffsdf</string>
@@ -61,4 +62,5 @@
     <string name="camera_permission_granted">Разрешение на съёмку дано</string>
     <string name="location_permission_granted">Разрешение на геопозицию дано</string>
     <string name="ok">OK</string>
+    <string name="add_quest">Добавление квеста</string>
 </resources>

@@ -13,9 +13,23 @@
 
     <fragment
         android:id="@+id/nav_events"
+        android:name="com.example.kvest2.ui.quest.QuestUserFragment"
+        android:label="@string/my_quests"
+        tools:layout="@layout/quest_user_fragment" >
+        <action
+            android:id="@+id/action_nav_events_to_nav_quests_user"
+            app:destination="@id/nav_quests_user" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_quests_user"
         android:name="com.example.kvest2.ui.quest.QuestFragment"
-        android:label="@string/menu_events"
-        tools:layout="@layout/quest_fragment" />
+        android:label="@string/add_quest"
+        tools:layout="@layout/quest_fragment" >
+        <action
+            android:id="@+id/action_nav_quests_user_to_nav_events"
+            app:destination="@id/nav_events" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_map"

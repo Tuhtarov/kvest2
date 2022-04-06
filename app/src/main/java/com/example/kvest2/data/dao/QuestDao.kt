@@ -17,4 +17,7 @@ interface QuestDao {
 
     @Query("DELETE FROM ${Quest.TABLE_NAME}")
     fun deleteAll()
+
+    @Query("SELECT * FROM ${Quest.TABLE_NAME} WHERE `id` = :id")
+    fun findById(id: Int): Quest?
 }

@@ -3,7 +3,6 @@ package com.example.kvest2.data.repository
 import androidx.lifecycle.LiveData
 import com.example.kvest2.data.dao.QuestUserDao
 import com.example.kvest2.data.entity.QuestUser
-import com.example.kvest2.data.entity.User
 
 class QuestUserRepository(private val questUserDao: QuestUserDao) {
     fun readAll(): LiveData<List<QuestUser>> {
@@ -14,7 +13,14 @@ class QuestUserRepository(private val questUserDao: QuestUserDao) {
         questUserDao.addQuestUser(questUser)
     }
 
-    fun clearCurrentQuestsByUser(user: User) {
-        questUserDao.clearCurrentQuestsByUser(user.id)
+    fun clearCurrentQuestsByUserId(id: Int) {
+        questUserDao.clearCurrentQuestsByUser(id)
+    }
+
+    fun setCurrentQuest(questUser: QuestUser) {
+        questUserDao.setCurrentQuest (
+            userId = questUser.userId,
+            questUserId = questUser.id
+        )
     }
 }
