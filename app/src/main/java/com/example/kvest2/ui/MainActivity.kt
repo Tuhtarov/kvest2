@@ -25,18 +25,24 @@ import com.example.kvest2.data.repository.UserRepository
 import com.example.kvest2.databinding.ActivityMainBinding
 import com.example.kvest2.databinding.HomeFragmentBinding
 import com.example.kvest2.ui.home.HomeFragment
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var layout: View
     private val REQUEST_PERMISSIONS = 10001
+
     override fun onCreate(savedInstanceState: Bundle?) {
         checkPermissions()
         super.onCreate(savedInstanceState)
@@ -112,6 +118,13 @@ class MainActivity : AppCompatActivity() {
                 ),
                 REQUEST_PERMISSIONS
             )
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        TODO("Not yet implemented")
+        googleMap.addMarker(MarkerOptions()
+            .position(LatLng(0.0,0.0))
+            .title("Marker"))
     }
 
 }
