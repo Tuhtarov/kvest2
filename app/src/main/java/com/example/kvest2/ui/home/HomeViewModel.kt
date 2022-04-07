@@ -1,6 +1,7 @@
 package com.example.kvest2.ui.home
 
 import android.hardware.Camera
+import android.location.Location
 import android.location.LocationManager
 import android.location.LocationRequest
 import androidx.core.content.ContextCompat
@@ -25,6 +26,9 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-
+    fun getDistanceToTask(taskLocation : Location, userLocation: Location) : Float
+    {
+        return userLocation.distanceTo(taskLocation)
+    }
 
 }

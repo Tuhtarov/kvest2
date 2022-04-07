@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.hardware.Camera
+import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.nfc.Tag
@@ -262,12 +263,22 @@ class HomeFragment : Fragment() {
                     binding.textLongitude.text = location.longitude.toString()
                     Log.i(TAG, location.latitude.toString())
                     Log.i(TAG, location.longitude.toString())
+
+                    //тестовая точка "задания" квеста
+                    val testLocation : Location = Location("aboba")
+
+                    testLocation.longitude = 91.442496
+                    testLocation.latitude = 53.722128
+
+                    binding.textDistanceToPoint.text = viewModel.getDistanceToTask(testLocation,location).toString()
                 }
 
 
             }
         }
     }
+
+
 
     //start location updates
     private fun startLocationUpdates() {
