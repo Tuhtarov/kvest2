@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.kvest2.data.entity.Quest
+import com.example.kvest2.data.entity.QuestUser
 
 @Dao
 interface QuestDao {
@@ -20,4 +21,8 @@ interface QuestDao {
 
     @Query("SELECT * FROM ${Quest.TABLE_NAME} WHERE `id` = :id")
     fun findById(id: Int): Quest?
+
+    @Query("SELECT * FROM ${Quest.TABLE_NAME} AS q JOIN ${QuestUser.TABLE_NAME} AS qu ON qu.quest_id = q.id" +
+            " WHERE qu.user_id <> :userId")
+    suspend fun findAvailableByUserId(userId: Int): MutableList<Quest>
 }

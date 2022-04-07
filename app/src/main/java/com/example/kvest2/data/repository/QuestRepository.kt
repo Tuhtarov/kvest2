@@ -9,6 +9,10 @@ class QuestRepository(private val questDao: QuestDao) {
         return questDao.readAll()
     }
 
+    suspend fun findAvailableByUserId(id: Int): MutableList<Quest> {
+        return questDao.findAvailableByUserId(id)
+    }
+
     fun addQuest(quest: Quest) {
         questDao.addQuest(quest)
     }

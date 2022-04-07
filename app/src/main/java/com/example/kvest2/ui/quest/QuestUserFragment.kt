@@ -4,12 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kvest2.R
-import com.example.kvest2.data.entity.QuestUser
+import com.example.kvest2.data.entity.QuestUserRelated
 import com.example.kvest2.databinding.QuestUserFragmentBinding
 import com.example.kvest2.ui.quest.dialog.ChooseQuestDialogFragment
 
@@ -29,31 +32,54 @@ class QuestUserFragment : Fragment() {
     ): View {
         binding = QuestUserFragmentBinding.inflate(inflater, container, false)
 
-        binding.apply {
-            questsUserRecycleView.layoutManager = LinearLayoutManager(context)
-
-            // отслеживаем список пользовательских квестов
-            viewModel.questsUser.observe(viewLifecycleOwner) {
-                questsUserRecycleView.adapter = QuestUserAdapter(it) { questUser ->
-                    onClickQuestUserItem(questUser)
-                }
-            }
-
-            // переход на фрагмент добавления квестов
-            testBtnForAddQuest.setOnClickListener {
-                findNavController().navigate(R.id.nav_quests_user)
-            }
-        }
+        initFragment()
+        showWarningCardViewIfQuestIsEmpty()
 
         return binding.root
     }
 
     /**
+     * Инициализация списка отображения пользовательских квестов и обработчиков событий
+     */
+    private fun initFragment() = with(binding) {
+        questsUserRecycleView.layoutManager = LinearLayoutManager(context)
+
+        viewModel.questUserRelated.observe(viewLifecycleOwner) {
+            showWarningCardViewIfQuestIsEmpty()
+
+            questsUserRecycleView.adapter = QuestUserAdapter(it) { questUserRelated ->
+                onClickQuestUserItem(questUserRelated)
+            }
+
+            if (it.isEmpty()) {
+                Toast.makeText(context, "У вас нет добавленных квестов", Toast.LENGTH_LONG)
+                    .show()
+            }
+        }
+
+        btnForAddQuest.setOnClickListener {
+            // переход на фрагмент добавления квестов
+            findNavController().navigate(R.id.nav_quests_user)
+        }
+    }
+
+    private fun showWarningCardViewIfQuestIsEmpty() = with(binding) {
+        if (viewModel.questUserRelated.value?.isEmpty() == true) {
+            warnCardView.cardViewMessage.findViewById<TextView>(R.id.textWarningCardView)
+                ?.text = getString(R.string.user_quests_is_empty)
+
+            warnCardView.cardViewMessage.visibility = CardView.VISIBLE
+        } else {
+            warnCardView.cardViewMessage.visibility = CardView.GONE
+        }
+    }
+
+    /**
      * Выводим модалку для подтверждения начала прохождения квеста
      */
-    private fun onClickQuestUserItem(questUser: QuestUser) {
-        val dialog = ChooseQuestDialogFragment(questUser) {
-            viewModel.setChosenQuestUserHowCurrent(questUser)
+    private fun onClickQuestUserItem(questUserRelated: QuestUserRelated) {
+        val dialog = ChooseQuestDialogFragment(questUserRelated.quest) {
+            viewModel.setChosenQuestUserHowCurrent(questUserRelated.questUser)
         }
 
         dialog.show(parentFragmentManager, "dialog-choose-quest")

@@ -6,22 +6,22 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.kvest2.R
-import com.example.kvest2.data.entity.QuestUser
+import com.example.kvest2.data.entity.QuestUserRelated
 import com.example.kvest2.databinding.QuestUserRecycleViewItemBinding
 
 /**
  * Адаптер для отображения квестов в recycle view
  */
 class QuestUserAdapter (
-    private val questsUsers: List<QuestUser>,
-    private val clickListener: (QuestUser) -> Unit): Adapter<QuestUserAdapter.QuestUserHolder>() {
+    private val questsUsersRelated: List<QuestUserRelated>,
+    private val clickListener: (QuestUserRelated) -> Unit): Adapter<QuestUserAdapter.QuestUserHolder>() {
 
     class QuestUserHolder(item: View, clickAtPosition: (Int) -> Unit): ViewHolder(item) {
         private val binding = QuestUserRecycleViewItemBinding.bind(item)
 
-        fun bind(questUser: QuestUser) = with(binding) {
-            questName.text = questUser.id.toString()
-            questDescription.text = questUser.userId.toString()
+        fun bind(questUserRelated: QuestUserRelated) = with(binding) {
+            questName.text = questUserRelated.quest.name
+            questDescription.text = questUserRelated.quest.description
         }
 
         init {
@@ -36,14 +36,14 @@ class QuestUserAdapter (
             LayoutInflater.from(parent.context)
                 .inflate(R.layout.quest_user_recycle_view_item, parent, false)
         ) {
-            clickListener(questsUsers[it])
+            clickListener(questsUsersRelated[it])
         }
     }
 
     override fun onBindViewHolder(holder: QuestUserHolder, position: Int) {
-        holder.bind(questsUsers[position])
+        holder.bind(questsUsersRelated[position])
     }
 
-    override fun getItemCount() = questsUsers.size
+    override fun getItemCount() = questsUsersRelated.size
 }
 

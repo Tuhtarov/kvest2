@@ -6,7 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.kvest2.data.dao.*
+import com.example.kvest2.data.dao.QuestDao
+import com.example.kvest2.data.dao.QuestUserDao
+import com.example.kvest2.data.dao.QuestUserRelatedDao
+import com.example.kvest2.data.dao.UserDao
 import com.example.kvest2.data.entity.*
 
 val recreateUserTable = object : Migration(1, 2) {
@@ -97,6 +100,8 @@ abstract class QuestDatabase: RoomDatabase() {
     abstract fun questDao(): QuestDao
 
     abstract fun questUserDao(): QuestUserDao
+
+    abstract fun questUserRelated(): QuestUserRelatedDao
 
     companion object {
         @Volatile

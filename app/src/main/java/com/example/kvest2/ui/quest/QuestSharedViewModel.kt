@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kvest2.data.entity.Quest
 import com.example.kvest2.data.entity.QuestUser
+import com.example.kvest2.data.entity.QuestUserRelated
 import com.example.kvest2.data.entity.User
 import com.example.kvest2.data.repository.QuestRepository
 import com.example.kvest2.data.repository.QuestUserRepository
@@ -22,45 +23,35 @@ class QuestSharedViewModel (
     private val currentUser: User
 ) : ViewModel() {
 
-    private val _quests = mutableListOf (
-        Quest(1, "1 тестовый", "Описание квеста", "24.02.2022"),
-        Quest(2, "2 тестовый", "Описание квеста", "24.02.2022"),
-        Quest(3, "3 тестовый", "Описание квеста", "24.02.2022"),
-        Quest(4, "4 тестовый", "Описание квеста", "24.02.2022"),
-        Quest(5, "5 тестовый", "Описание квеста", "24.02.2022"),
-    )
+    private lateinit var _questsAvailable: MutableList<Quest>
+    private lateinit var _questUserRelated: MutableList<QuestUserRelated>
 
-    private val _questsUser = mutableListOf (
-        QuestUser(6, _quests[0].id, currentUser.id, true, quest = _quests[0]),
-        QuestUser(7, _quests[1].id, currentUser.id, quest = _quests[1])
-    )
-
-    val quests = MutableLiveData<MutableList<Quest>>()
-
-    val questsUser = MutableLiveData<MutableList<QuestUser>>()
+    val questsAvailable = MutableLiveData<MutableList<Quest>>()
+    val questUserRelated = MutableLiveData<MutableList<QuestUserRelated>>()
 
     init {
-        quests.value = _quests
-        questsUser.value = _questsUser
+        viewModelScope.launch {
+            launch {
+                _questsAvailable = questRepository.findAvailableByUserId(currentUser.id)
+                questsAvailable.postValue(_questsAvailable)
+            }
+
+            launch {
+                _questUserRelated = questUserRepository.findAllRelatedByUserId(currentUser.id)
+                questUserRelated.postValue(_questUserRelated)
+            }
+        }
     }
 
     /**
-     * Добавить квест в таблицу квестов, выбранных текущим пользователем,
-     * если такого квеста ещё не было добавлено
+     * Добавить квест в таблицу квестов, выбранных текущим пользователем
      */
-    fun appendQuestToUserQuestsIfNotExists(quest: Quest) {
-        var alreadyExists = false
+    fun appendQuestToUserQuests(quest: Quest) {
+        val questUser = QuestUser(0, quest.id, currentUser.id)
+        saveQuestUserToDB(questUser)
 
-        repeat(_questsUser.size) {
-            alreadyExists = _questsUser[it].questId == quest.id || alreadyExists
-        }
-
-        if (!alreadyExists) {
-            val questUser = QuestUser(0, quest.id, currentUser.id)
-//            saveQuestUserToDB(questUser)
-            _questsUser.add(questUser)
-            questsUser.value = _questsUser
-        }
+        _questUserRelated.add(QuestUserRelated(questUser, currentUser, quest))
+        questUserRelated.value = _questUserRelated
     }
 
     private fun saveQuestUserToDB(questUser: QuestUser) {

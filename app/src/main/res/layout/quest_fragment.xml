@@ -11,6 +11,9 @@
     android:layout_height="match_parent"
     tools:context=".ui.quest.QuestFragment">
 
+    <include
+        android:id="@+id/warnCardView"
+        layout="@layout/quests_list_is_empty_card_view" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/questRecycleView"

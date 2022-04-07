@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.example.kvest2.data.entity.Quest
-import com.example.kvest2.data.entity.QuestUser
 import com.example.kvest2.databinding.ChooseQuestDialogFragmentBinding
 
 class ChooseQuestDialogFragment (
-    private val questUser: QuestUser,
+    private val quest: Quest,
     private val onChooseListener: () -> Unit
 ): DialogFragment() {
 
@@ -28,12 +26,7 @@ class ChooseQuestDialogFragment (
             dismiss()
         }
 
-        if (questUser.quest != null) {
-            showQuestData(questUser.quest!!)
-        } else {
-            val toastMessage = "Закрепленный квест не был получен для отображения модального окна"
-            Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show()
-        }
+        showQuestData(quest)
 
         return binding.root
     }

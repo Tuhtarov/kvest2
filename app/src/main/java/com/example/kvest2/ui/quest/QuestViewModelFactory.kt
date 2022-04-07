@@ -12,12 +12,14 @@ class QuestViewModelFactory(private val context: Context) : ViewModelProvider.Fa
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(QuestSharedViewModel::class.java)) {
-            val questDao = QuestDatabase.getDatabase(context).questDao()
-            val questUserDao = QuestDatabase.getDatabase(context).questUserDao()
+            val db = QuestDatabase.getDatabase(context)
+            val questDao = db.questDao()
+            val questUserDao = db.questUserDao()
+            val questUserRelatedDao = db.questUserRelated()
 
             return QuestSharedViewModel (
                 QuestRepository(questDao),
-                QuestUserRepository(questUserDao),
+                QuestUserRepository(questUserDao, questUserRelatedDao),
                 AppUserSingleton.getUser()!!
             ) as T
         }

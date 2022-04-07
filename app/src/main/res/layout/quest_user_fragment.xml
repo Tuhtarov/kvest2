@@ -11,6 +11,9 @@
     android:layout_height="match_parent"
     tools:context=".ui.quest.QuestFragment">
 
+    <include
+        android:id="@+id/warnCardView"
+        layout="@layout/quests_list_is_empty_card_view" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/quests_user_recycle_view"
@@ -24,7 +27,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/testBtnForAddQuest"
+        android:id="@+id/btnForAddQuest"
         android:layout_marginBottom="20dp"
         android:text="Добавить квест"
         android:layout_width="wrap_content"

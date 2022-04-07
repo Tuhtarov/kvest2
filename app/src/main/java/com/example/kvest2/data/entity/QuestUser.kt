@@ -2,6 +2,12 @@ package com.example.kvest2.data.entity
 
 import androidx.room.*
 
+
+/**
+ * @Documentation
+ * isCurrent - текущий, выбранный квест для пользователя или нет
+ */
+
 @Entity (
     tableName = QuestUser.TABLE_NAME,
     foreignKeys = [
@@ -29,18 +35,8 @@ data class QuestUser (
 
     @ColumnInfo(name = "is_current", defaultValue = "0")
     var isCurrent: Boolean = false,
-
-    @Ignore
-    var quest: Quest? = null
 ) {
-    constructor() : this(0, 0, 0, false, null)
-
     companion object {
         const val TABLE_NAME = "quest_user"
     }
 }
-
-/**
- * @Documentation
- * isCurrent - текущий, выбранный квест для пользователя или нет
- */

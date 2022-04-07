@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">Квест</string>
 
+    <!--Сообщения о пустых списках-->
+    <string name="quests_is_empty">
+        Список доступных квестов - пуст, повторите попытку позже..
+    </string>
+
+    <string name="user_quests_is_empty">
+        На данный момент, ваш список квестов - пуст.
+        Попробуйте добавить квест, нажав на кнопку внизу экрана
+    </string>
+
+
     <!-- Strings related to registration -->
     <!-- Strings related to login -->
     <string name="prompt_name">Имя</string>
