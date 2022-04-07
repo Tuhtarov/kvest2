@@ -49,9 +49,26 @@ class QuestSharedViewModel (
     fun appendQuestToUserQuests(quest: Quest) {
         val questUser = QuestUser(0, quest.id, currentUser.id)
         saveQuestUserToDB(questUser)
-
         _questUserRelated.add(QuestUserRelated(questUser, currentUser, quest))
         questUserRelated.value = _questUserRelated
+
+        removeQuestFromAvailable(quest)
+    }
+
+    /**
+     * Убрать квест из списка доступных
+     */
+    private fun removeQuestFromAvailable(quest: Quest) {
+        val questAvailableUpdated = mutableListOf<Quest>()
+
+        repeat(_questsAvailable.size) {
+            if (_questsAvailable[it].id != quest.id) {
+                questAvailableUpdated.add(_questsAvailable[it])
+            }
+        }
+
+        _questsAvailable = questAvailableUpdated
+        questsAvailable.value =_questsAvailable
     }
 
     private fun saveQuestUserToDB(questUser: QuestUser) {
