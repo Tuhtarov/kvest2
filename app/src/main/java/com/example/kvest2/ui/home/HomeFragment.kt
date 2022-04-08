@@ -30,7 +30,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
     companion object {
         fun newInstance() = HomeFragment()
@@ -62,10 +62,13 @@ class HomeFragment : Fragment() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         getLocationUpdates()
 
+        val location : Location = Location("aboba")
+        val location1 : Location = Location("aboba")
+        viewModel.setLocationInstances(location, location1)
         onRequestCameraPermission(view)
 
         startCamera()
-
+        setupListeners()
 
 
         return binding.root
@@ -76,6 +79,14 @@ class HomeFragment : Fragment() {
 
     }
 
+
+    lateinit var myCurrentAzimuth : MyCurrentAzimuth
+    /*метод setupListeners служит для инициализации слушателей местоположения и азимута - здесь
+    мы вызываем конструкторы классов MyCurrentLocation и MyCurrentAzimuth и выполняем их методы start*/
+    private fun setupListeners() {
+        myCurrentAzimuth = MyCurrentAzimuth(this, requireContext())
+        myCurrentAzimuth.start()
+    }
     private fun startCamera() {
         var mCamera = viewModel.getCameraInstance()
 
@@ -240,6 +251,7 @@ class HomeFragment : Fragment() {
      * call this method in onCreate
      * onLocationResult call when location is changed
      */
+    lateinit var currentDeviceLocation : Location
     private fun getLocationUpdates()
     {
 
@@ -255,22 +267,27 @@ class HomeFragment : Fragment() {
 
                 if (locationResult.locations.isNotEmpty()) {
                     // get latest location
-                    val location =
+                    currentDeviceLocation =
                         locationResult.lastLocation
                     // use your location object
                     // get latitude , longitude and other info from this
-                    binding.textLatitude.text = location.latitude.toString()
-                    binding.textLongitude.text = location.longitude.toString()
-                    Log.i(TAG, location.latitude.toString())
-                    Log.i(TAG, location.longitude.toString())
+                    binding.textLatitude.text = currentDeviceLocation.latitude.toString()
+                    binding.textLongitude.text = currentDeviceLocation.longitude.toString()
+                    Log.i(TAG, currentDeviceLocation.latitude.toString())
+                    Log.i(TAG, currentDeviceLocation.longitude.toString())
 
-                    //тестовая точка "задания" квеста
-                    val testLocation : Location = Location("aboba")
+
 
                     testLocation.longitude = 91.442496
                     testLocation.latitude = 53.722128
 
-                    binding.textDistanceToPoint.text = viewModel.getDistanceToTask(testLocation,location).toString()
+                    viewModel.taskLocation = testLocation
+                    viewModel.deviceLocation = currentDeviceLocation
+
+
+                    binding.textDistanceToPoint.text = viewModel.getDistanceToTask(testLocation,currentDeviceLocation).toString()
+
+
                 }
 
 
@@ -278,7 +295,8 @@ class HomeFragment : Fragment() {
         }
     }
 
-
+    //тестовая точка "задания" квеста
+    val testLocation : Location = Location("aboba")
 
     //start location updates
     private fun startLocationUpdates() {
@@ -321,6 +339,20 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         startLocationUpdates()
+    }
+
+    var mAzimuthTeoretical : Double = 0.0
+    var mAzimuthReal : Float = 0.0f
+    override fun onAzimuthChanged(azimuthFrom: Float, azimuthTo: Float) {
+        mAzimuthReal = azimuthTo
+        mAzimuthTeoretical = viewModel.calculateTeoreticalAzimuth()
+
+
+        //val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
+        //val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
+
+        binding.textCurrentAzimuth.text = mAzimuthReal.toString()
+        binding.textTargetAzimuth.text = mAzimuthTeoretical.toString()
     }
 
 }

@@ -13,10 +13,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <FrameLayout
         android:id="@+id/cameraPreview"
-        android:layout_width="match_parent"
-        android:layout_height="628dp"
+        android:layout_width="379dp"
+        android:layout_height="552dp"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,11 +51,34 @@
         android:id="@+id/textDistanceToPoint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="304dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="280dp"
         android:text="DistanceTo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textLongitude" />
+
+    <TextView
+        android:id="@+id/textCurrentAzimuth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="CurrentAzimuth"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textDistanceToPoint" />
+
+    <TextView
+        android:id="@+id/textTargetAzimuth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="TargetAzimuth"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textCurrentAzimuth" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
