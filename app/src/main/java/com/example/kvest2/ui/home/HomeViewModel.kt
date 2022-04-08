@@ -26,7 +26,7 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
     усложнить задачу поиска покемона. Точность дистанции указана в условных единицах, равных примерно 0.9м,
     а точность азимута - в градусах*/
     private val DISTANCE_ACCURACY = 20.0
-    private val AZIMUTH_ACCURACY = 10.0
+    private val AZIMUTH_ACCURACY = 12.0
 
 
     fun getDistanceToTask(taskLocation: Location, userLocation: Location): Float {

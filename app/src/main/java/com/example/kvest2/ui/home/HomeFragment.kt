@@ -1,14 +1,9 @@
 package com.example.kvest2.ui.home
 
 import android.Manifest
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
-import android.hardware.Camera
 import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.nfc.Tag
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -16,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,9 +20,7 @@ import com.example.kvest2.R
 import com.example.kvest2.databinding.HomeFragmentBinding
 import com.example.kvest2.ui.camera.CameraPreview
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.material.snackbar.Snackbar
-import java.io.IOException
 
 class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
@@ -281,11 +273,13 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                     testLocation.longitude = 91.442496
                     testLocation.latitude = 53.722128
 
+                    distanceToTask = viewModel.getDistanceToTask(testLocation,currentDeviceLocation)
+
                     viewModel.taskLocation = testLocation
                     viewModel.deviceLocation = currentDeviceLocation
 
 
-                    binding.textDistanceToPoint.text = viewModel.getDistanceToTask(testLocation,currentDeviceLocation).toString()
+                    binding.textDistanceToPoint.text = distanceToTask.toString()
 
 
                 }
@@ -294,7 +288,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             }
         }
     }
-
+    var distanceToTask : Float = 0.0f
     //тестовая точка "задания" квеста
     val testLocation : Location = Location("aboba")
 
@@ -341,6 +335,8 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         startLocationUpdates()
     }
 
+    private val DISTANCE_ACCURACY = 20.0
+    private val AZIMUTH_ACCURACY = 10.0
     var mAzimuthTeoretical : Double = 0.0
     var mAzimuthReal : Float = 0.0f
     override fun onAzimuthChanged(azimuthFrom: Float, azimuthTo: Float) {
@@ -348,8 +344,16 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         mAzimuthTeoretical = viewModel.calculateTeoreticalAzimuth()
 
 
-        //val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
-        //val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
+        val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
+        val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
+
+        if ((viewModel.isBetween(minAngle, maxAngle, mAzimuthReal.toDouble())&& distanceToTask<DISTANCE_ACCURACY)) {
+            //pointerIcon.setVisibility(View. VISIBLE );
+            binding.textIsPointHitted.text = "Попал!"
+        } else {
+            //pointerIcon.setVisibility(View. INVISIBLE );
+            binding.textIsPointHitted.text = "Мимо..."
+        }
 
         binding.textCurrentAzimuth.text = mAzimuthReal.toString()
         binding.textTargetAzimuth.text = mAzimuthTeoretical.toString()
