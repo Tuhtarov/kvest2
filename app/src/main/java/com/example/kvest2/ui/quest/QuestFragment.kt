@@ -1,11 +1,11 @@
 package com.example.kvest2.ui.quest
 
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -61,6 +61,12 @@ class QuestFragment : Fragment() {
     private fun onClickQuestItem(quest: Quest) = with(binding) {
         // добавили квест в пользовательские
         viewModel.appendQuestToUserQuests(quest)
+
+        Toast.makeText(
+            context,
+            "Выбранный вами квест \"${quest.name}\", доступен для прохождения!",
+            Toast.LENGTH_LONG
+        ).show()
 
         // выбрали квест - вернулись обратно
         findNavController().navigateUp()

@@ -14,26 +14,23 @@ class QuestUserRepository (
         return questUserDao.readAll()
     }
 
-    suspend fun readAllRelated(): MutableList<QuestUserRelated> {
-        return questUserRelatedDao.findAll()
-    }
-
-    suspend fun findAllRelatedByUserId(id: Int): MutableList<QuestUserRelated> {
+    suspend fun findAllByUserId(id: Int): MutableList<QuestUserRelated> {
         return questUserRelatedDao.findAllByUserId(id)
     }
 
-    fun addQuestUser(questUser: QuestUser) {
+    suspend fun addQuestUser(questUser: QuestUser) {
         questUserDao.addQuestUser(questUser)
     }
 
-    fun clearCurrentQuestsByUserId(id: Int) {
+    suspend fun clearCurrentQuestsByUserId(id: Int) {
         questUserDao.clearCurrentQuestsByUser(id)
     }
 
-    fun setCurrentQuest(questUser: QuestUser) {
-        questUserDao.setCurrentQuest (
+    suspend fun setCurrent(questUser: QuestUser, status: Boolean) {
+        questUserDao.setCurrent (
             userId = questUser.userId,
-            questUserId = questUser.id
+            questUserId = questUser.id,
+            status = if (status) 1 else 0
         )
     }
 }

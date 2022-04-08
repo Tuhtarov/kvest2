@@ -47,8 +47,10 @@ class QuestUserFragment : Fragment() {
         viewModel.questUserRelated.observe(viewLifecycleOwner) {
             showWarningCardViewIfQuestIsEmpty()
 
-            questsUserRecycleView.adapter = QuestUserAdapter(it) { questUserRelated ->
-                onClickQuestUserItem(questUserRelated)
+            val currentQuestColor = R.color.quest_user_item_current
+
+            questsUserRecycleView.adapter = QuestUserAdapter(it, currentQuestColor) { quest ->
+                onClickQuestUserItem(quest)
             }
 
             if (it.isEmpty()) {
@@ -78,9 +80,7 @@ class QuestUserFragment : Fragment() {
      * Выводим модалку для подтверждения начала прохождения квеста
      */
     private fun onClickQuestUserItem(questUserRelated: QuestUserRelated) {
-        val dialog = ChooseQuestDialogFragment(questUserRelated.quest) {
-            viewModel.setChosenQuestUserHowCurrent(questUserRelated.questUser)
-        }
+        val dialog = ChooseQuestDialogFragment(questUserRelated)
 
         dialog.show(parentFragmentManager, "dialog-choose-quest")
     }

@@ -7,9 +7,9 @@ import com.example.kvest2.data.entity.QuestUserRelated
 
 @Dao
 interface QuestUserRelatedDao {
-    @Query("SELECT * from ${QuestUser.TABLE_NAME}")
+    @Query("SELECT DISTINCT * FROM ${QuestUser.TABLE_NAME} ORDER BY id DESC")
     suspend fun findAll(): MutableList<QuestUserRelated>
 
-    @Query("SELECT * from ${QuestUser.TABLE_NAME} where `user_id` = :userId")
+    @Query("SELECT DISTINCT * FROM ${QuestUser.TABLE_NAME} WHERE `user_id` = :userId ORDER BY id DESC")
     suspend fun findAllByUserId(userId: Int): MutableList<QuestUserRelated>
 }

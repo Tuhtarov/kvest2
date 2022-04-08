@@ -4,41 +4,66 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kvest2.data.entity.Quest
-import com.example.kvest2.data.entity.QuestUser
-import com.example.kvest2.data.entity.QuestUserRelated
-import com.example.kvest2.data.entity.User
+import com.example.kvest2.data.entity.*
+import com.example.kvest2.data.model.TaskUserRelatedStore
 import com.example.kvest2.data.repository.QuestRepository
 import com.example.kvest2.data.repository.QuestUserRepository
+import com.example.kvest2.data.repository.TaskQuestRepository
+import com.example.kvest2.data.repository.TaskUserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * ViewModel для фрагментов списка пользовательских квестов
  * и для добавления квеста (Quest) в пользовательские квесты (QuestUser)
  */
 class QuestSharedViewModel (
+    private val currentUser: User,
     private val questRepository: QuestRepository,
     private val questUserRepository: QuestUserRepository,
-    private val currentUser: User
+    private val taskUserRepository: TaskUserRepository,
+    private val taskQuestRepository: TaskQuestRepository,
+    private val taskUserRelatedStore: TaskUserRelatedStore
 ) : ViewModel() {
 
     private lateinit var _questsAvailable: MutableList<Quest>
     private lateinit var _questUserRelated: MutableList<QuestUserRelated>
+    private lateinit var _userTasks: MutableList<TaskUserRelated>
+    private lateinit var _questTasks: MutableList<TaskQuestRelated>
 
     val questsAvailable = MutableLiveData<MutableList<Quest>>()
     val questUserRelated = MutableLiveData<MutableList<QuestUserRelated>>()
+    val userTasks = MutableLiveData<MutableList<TaskUserRelated>>()
+    val questTasks = MutableLiveData<MutableList<TaskQuestRelated>>()
 
     init {
+        // инициализируем листы, заполняем данными из БД
         viewModelScope.launch {
+            // получаем доступные квесты для добавления текущим пользователем
             launch {
                 _questsAvailable = questRepository.findAvailableByUserId(currentUser.id)
                 questsAvailable.postValue(_questsAvailable)
             }
 
+            // получаем пользовательские квесты для прохождения заданий
             launch {
-                _questUserRelated = questUserRepository.findAllRelatedByUserId(currentUser.id)
+                _questUserRelated = questUserRepository.findAllByUserId(currentUser.id)
                 questUserRelated.postValue(_questUserRelated)
+            }
+
+            // получаем все квестовые задачи
+            launch {
+                _questTasks = taskQuestRepository.readAll()
+                questTasks.postValue(_questTasks)
+            }
+
+            // получаем пользовательские задачи
+            launch {
+                _userTasks = taskUserRepository.readAllByUserId(currentUser.id)
+                userTasks.postValue(_userTasks)
+
+                taskUserRelatedStore.setUserTasks(_userTasks)
             }
         }
     }
@@ -84,14 +109,17 @@ class QuestSharedViewModel (
     /**
      * Обозначить пользовательский квест как текущий
      */
-    fun setChosenQuestUserHowCurrent(questUser: QuestUser) {
-        viewModelScope.launch(Dispatchers.Default) {
+    fun changeQuestStatus(quest: QuestUserRelated, isCurrent: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
             // снимаем статус "текущего" квеста, со всех пользовательских квестов
-            questUserRepository.clearCurrentQuestsByUserId(questUser.userId)
+            questUserRepository.clearCurrentQuestsByUserId(quest.questUser.userId)
 
             // назначаем пользовательский квест как "текущий", и сохраняем в БД
-            questUser.isCurrent = true
-            questUserRepository.setCurrentQuest(questUser)
+            questUserRepository.setCurrent(quest.questUser, isCurrent)
+
+            _questUserRelated = questUserRepository.findAllByUserId(quest.questUser.userId)
+
+            questUserRelated.postValue(_questUserRelated)
         }
     }
 }

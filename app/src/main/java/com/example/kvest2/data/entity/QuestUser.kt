@@ -21,6 +21,9 @@ import androidx.room.*
             parentColumns = ["id"],
             childColumns = ["user_id"],
         )
+    ],
+    indices = [
+        Index(value = ["user_id", "quest_id"], unique = true)
     ]
 )
 data class QuestUser (

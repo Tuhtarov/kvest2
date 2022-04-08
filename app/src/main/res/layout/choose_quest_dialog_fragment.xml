@@ -76,7 +76,18 @@
         <Button
             android:id="@+id/quest_choose_btn"
             android:text="Начать"
+            android:contentDescription="Начать прохождение квеста"
             android:backgroundTint="#26c6da"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- Кнопка закрытия диалогового окна -->
+        <Button
+            android:id="@+id/quest_cancel_btn"
+            android:text="Отменить"
+            android:contentDescription="Отменить прохождение квеста"
+            android:backgroundTint="@color/design_default_color_primary_dark"
             android:layout_alignParentEnd="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

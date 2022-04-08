@@ -1,15 +1,13 @@
 package com.example.kvest2.data.db
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.kvest2.data.dao.QuestDao
-import com.example.kvest2.data.dao.QuestUserDao
-import com.example.kvest2.data.dao.QuestUserRelatedDao
-import com.example.kvest2.data.dao.UserDao
+import com.example.kvest2.data.dao.*
 import com.example.kvest2.data.entity.*
 
 val recreateUserTable = object : Migration(1, 2) {
@@ -82,6 +80,19 @@ val addNewColumns = object : Migration(3, 4) {
     }
 }
 
+val addNewIndexes = object : Migration(4, 5) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // пользовательские квесты
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_quest_user_user_id_quest_id" +
+                " ON ${QuestUser.TABLE_NAME} (user_id, quest_id);")
+
+        // пользовательские задачи
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_task_user_task_id_user_id" +
+                " ON ${TaskUser.TABLE_NAME} (user_id, task_id);")
+    }
+}
+
+
 @Database (
     entities = [
         User::class,
@@ -91,7 +102,7 @@ val addNewColumns = object : Migration(3, 4) {
         TaskUser::class,
         QuestUser::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class QuestDatabase: RoomDatabase() {
@@ -101,7 +112,14 @@ abstract class QuestDatabase: RoomDatabase() {
 
     abstract fun questUserDao(): QuestUserDao
 
+    /**
+     * Сущности с имплиментом связанных сущностей
+     */
     abstract fun questUserRelated(): QuestUserRelatedDao
+
+    abstract fun taskUserRelated(): TaskUserRelatedDao
+
+    abstract fun taskQuestRelated(): TaskQuestRelatedDao
 
     companion object {
         @Volatile
@@ -118,7 +136,7 @@ abstract class QuestDatabase: RoomDatabase() {
                     QuestDatabase::class.java,
                     "quest_database"
                 )
-                    .addMigrations(recreateUserTable, addColumnIsLoggedToUserTable, addNewColumns)
+                    .addMigrations(recreateUserTable, addColumnIsLoggedToUserTable, addNewColumns, addNewIndexes)
                     .build()
 
                 INSTANCE = instance
