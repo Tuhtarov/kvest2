@@ -1,9 +1,6 @@
 package com.example.kvest2.data.entity
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
 
 @Entity (
     tableName = TaskUser.TABLE_NAME,
@@ -17,7 +14,10 @@ import androidx.room.PrimaryKey
             entity = Task::class,
             parentColumns = ["id"],
             childColumns = ["task_id"],
-        )
+        ),
+    ],
+    indices = [
+        Index(value = ["user_id", "task_id"], unique = true)
     ]
 )
 data class TaskUser (

@@ -14,14 +14,24 @@ import com.example.kvest2.databinding.QuestUserRecycleViewItemBinding
  */
 class QuestUserAdapter (
     private val questsUsersRelated: List<QuestUserRelated>,
-    private val clickListener: (QuestUserRelated) -> Unit): Adapter<QuestUserAdapter.QuestUserHolder>() {
+    private val colorCurrentQuestResId: Int? = null,
+    private val clickListener: (QuestUserRelated) -> Unit,
+): Adapter<QuestUserAdapter.QuestUserHolder>() {
 
-    class QuestUserHolder(item: View, clickAtPosition: (Int) -> Unit): ViewHolder(item) {
+    class QuestUserHolder (
+        private val colorCurrentQuestResId: Int? = null,
+        item: View,
+        clickAtPosition: (Int) -> Unit,
+    ): ViewHolder(item) {
         private val binding = QuestUserRecycleViewItemBinding.bind(item)
 
         fun bind(questUserRelated: QuestUserRelated) = with(binding) {
             questName.text = questUserRelated.quest.name
             questDescription.text = questUserRelated.quest.description
+
+            if (questUserRelated.questUser.isCurrent && colorCurrentQuestResId != null) {
+               questUserCV.setCardBackgroundColor(colorCurrentQuestResId)
+            }
         }
 
         init {
@@ -33,6 +43,7 @@ class QuestUserAdapter (
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuestUserHolder {
         return QuestUserHolder (
+            colorCurrentQuestResId,
             LayoutInflater.from(parent.context)
                 .inflate(R.layout.quest_user_recycle_view_item, parent, false)
         ) {

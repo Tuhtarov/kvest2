@@ -14,14 +14,14 @@ interface QuestUserDao {
     fun readAll(): LiveData<List<QuestUser>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun addQuestUser(questUser: QuestUser)
+    suspend fun addQuestUser(questUser: QuestUser)
 
     @Query("UPDATE ${QuestUser.TABLE_NAME} SET `is_current` = 0 WHERE `user_id` = :userId")
-    fun clearCurrentQuestsByUser(userId: Int)
+    suspend fun clearCurrentQuestsByUser(userId: Int)
 
     @Query(
-        "UPDATE ${QuestUser.TABLE_NAME} SET `is_current` = 1" +
+        "UPDATE ${QuestUser.TABLE_NAME} SET `is_current` = :status" +
                 " WHERE `user_id` = :userId AND `id` = :questUserId"
     )
-    fun setCurrentQuest(userId: Int, questUserId: Int)
+    suspend fun setCurrent(userId: Int, questUserId: Int, status: Int)
 }
