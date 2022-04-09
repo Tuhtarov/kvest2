@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.example.kvest2.data.entity.Quest
 import com.example.kvest2.data.entity.QuestUserRelated
 import com.example.kvest2.databinding.ChooseQuestDialogFragmentBinding
 import com.example.kvest2.ui.quest.QuestSharedViewModel
@@ -28,36 +27,37 @@ class ChooseQuestDialogFragment(private val questUserRelated: QuestUserRelated):
     ): View {
         binding = ChooseQuestDialogFragmentBinding.inflate(inflater, container, false)
 
-        binding.dialogCloseBtn.setOnClickListener {
-            dismiss()
+        binding.apply {
+            val quest = questUserRelated.quest
+
+            questTitle.text = quest.name
+            questDescription.text = quest.description
+            questCreatedAt.text = quest.createdAt
         }
 
-        binding.questChooseBtn.setOnClickListener {
-            viewModel.changeQuestStatus(questUserRelated, true)
-            dismiss()
-        }
-
-        binding.questCancelBtn.setOnClickListener {
-            viewModel.changeQuestStatus(questUserRelated, false)
-            dismiss()
-        }
-
-        if (questUserRelated.questUser.isCurrent) {
-            binding.questChooseBtn.visibility = Button.GONE
-            binding.questCancelBtn.visibility = Button.VISIBLE
-        } else {
-            binding.questChooseBtn.visibility = Button.VISIBLE
-            binding.questCancelBtn.visibility = Button.GONE
-        }
-
-        showQuestData(questUserRelated.quest)
+        initDialogListeners()
 
         return binding.root
     }
 
-    private fun showQuestData(quest: Quest) = with(binding) {
-        questTitle.text = quest.name
-        questDescription.text = quest.description
-        questCreatedAt.text = quest.createdAt
+    private fun initDialogListeners() = with(binding) {
+        val isCurrent = questUserRelated.questUser.isCurrent
+
+        dialogCloseBtn.setOnClickListener {
+            dismiss()
+        }
+
+        questChooseBtn.setOnClickListener {
+            viewModel.changeQuestStatus(questUserRelated, true)
+            dismiss()
+        }
+
+        questCancelBtn.setOnClickListener {
+            viewModel.changeQuestStatus(questUserRelated, false)
+            dismiss()
+        }
+
+        questChooseBtn.visibility = if (isCurrent) Button.GONE else Button.VISIBLE
+        questCancelBtn.visibility = if (isCurrent) Button.VISIBLE else Button.GONE
     }
 }

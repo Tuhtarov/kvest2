@@ -12,7 +12,6 @@ import com.example.kvest2.data.repository.TaskQuestRepository
 import com.example.kvest2.data.repository.TaskUserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * ViewModel для фрагментов списка пользовательских квестов
@@ -80,9 +79,6 @@ class QuestSharedViewModel (
         removeQuestFromAvailable(quest)
     }
 
-    /**
-     * Убрать квест из списка доступных
-     */
     private fun removeQuestFromAvailable(quest: Quest) {
         val questAvailableUpdated = mutableListOf<Quest>()
 

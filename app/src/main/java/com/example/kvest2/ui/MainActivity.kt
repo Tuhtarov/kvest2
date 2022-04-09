@@ -19,9 +19,11 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.kvest2.R
 import com.example.kvest2.data.db.QuestDatabase
+import com.example.kvest2.data.model.AppDataOriginSingleton
 import com.example.kvest2.data.model.AppUserSingleton
 import com.example.kvest2.data.repository.UserRepository
 import com.example.kvest2.databinding.ActivityMainBinding
+import com.example.kvest2.ui.home.dialog.ChooseServerDialogFragment
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
@@ -81,9 +83,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        showChooseOriginServer()
+    }
 
-
-
+    private fun showChooseOriginServer() {
+        ChooseServerDialogFragment().show(supportFragmentManager, "dialog-choose-server")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
