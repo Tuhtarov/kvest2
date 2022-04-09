@@ -44,7 +44,7 @@ class MyCurrentAzimuth(azimuthListener: OnAzimuthChangedListener, context: Conte
     // в переменную azimuthTo сохраняем градусную меру угла поворота в радианах
 
 
-    private val mRotHist: MutableList<FloatArray> = ArrayList()
+    private val mRotHist: MutableList<Double> = ArrayList()
     private var mRotHistIndex = 0
 
     // Change the value so that the azimuth is stable and fit your requirement
@@ -67,29 +67,24 @@ class MyCurrentAzimuth(azimuthListener: OnAzimuthChangedListener, context: Conte
         } else {
             mMagnetic = event.values.clone()
         }
+        SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values)
+        // inclination is the degree of tilt by the device independent of orientation (portrait or landscape)
+        // if less than 25 or more than 155 degrees the device is considered lying flat
+        val inclination = Math.acos(mRotationMatrix.get(8).toDouble()).toFloat()
+        if (inclination < TWENTY_FIVE_DEGREE_IN_RADIAN
+            || inclination > ONE_FIFTY_FIVE_DEGREE_IN_RADIAN
+        ) {
+            // mFacing is undefined, so we need to clear the history
+            clearRotHist()
+            mFacing = Double.NaN
+        } else {
+            setRotHist()
+            // mFacing = azimuth is in radian
 
-            SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values)
-                // inclination is the degree of tilt by the device independent of orientation (portrait or landscape)
-                // if less than 25 or more than 155 degrees the device is considered lying flat
-                val inclination = Math.acos(mRotationMatrix.get(8).toDouble()).toFloat()
-                if (inclination < TWENTY_FIVE_DEGREE_IN_RADIAN
-                    || inclination > ONE_FIFTY_FIVE_DEGREE_IN_RADIAN
-                ) {
-                    // mFacing is undefined, so we need to clear the history
-                    clearRotHist()
-                    mFacing = Double.NaN
-                    mAzimuthListener.onAzimuthChanged(mFacing)
-                } else {
-                    setRotHist()
-                    // mFacing = azimuth is in radian
-                    mFacing = Math.toDegrees(findFacing()+360)%360
-                    mAzimuthListener.onAzimuthChanged(mFacing)
-                }
+            mFacing = findFacing()
 
-
-
-
-
+        }
+        mAzimuthListener.onAzimuthChanged(mFacing)
     }
 
     private fun clearRotHist() {
@@ -104,8 +99,9 @@ class MyCurrentAzimuth(azimuthListener: OnAzimuthChangedListener, context: Conte
         if (DEBUG) {
             Log.d(TAG, "setRotHist()")
         }
-        val hist: FloatArray = mRotationMatrix.clone()
-        if (mRotHist.size === mHistoryMaxLength) {
+        val orientation = FloatArray(3)
+        val hist: Double = (Math. toDegrees(SensorManager.getOrientation( mRotationMatrix, orientation )[ 0].toDouble()) + 360 ) % 360
+        if (mRotHist.size == mHistoryMaxLength) {
             mRotHist.removeAt(mRotHistIndex)
         }
         mRotHist.add(mRotHistIndex++, hist)
@@ -116,23 +112,16 @@ class MyCurrentAzimuth(azimuthListener: OnAzimuthChangedListener, context: Conte
         if (DEBUG) {
             Log.d(TAG, "findFacing()")
         }
-        val averageRotHist = average(mRotHist)
-        return Math.atan2(
-            (-averageRotHist[2]).toDouble(),
-            (-averageRotHist[5]).toDouble()
-        )
+        return average(mRotHist)
+
     }
 
-    fun average(values: List<FloatArray>): FloatArray {
-        val result = FloatArray(9)
+    fun average(values: List<Double>): Double {
+        var result = 0.0
         for (value in values) {
-            for (i in 0..8) {
-                result[i] += value[i]
-            }
+            result+=value
         }
-        for (i in 0..8) {
-            result[i] = result[i] / values.size
-        }
+        result /= values.size
         return result
     }
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
