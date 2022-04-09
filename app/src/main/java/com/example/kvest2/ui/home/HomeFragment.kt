@@ -249,8 +249,8 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationRequest = LocationRequest()
-        locationRequest.interval = 5000
-        locationRequest.fastestInterval = 1000
+        locationRequest.interval = 3000
+        locationRequest.fastestInterval = 500
         locationRequest.smallestDisplacement = 1f // 170 m = 0.1 mile
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY //set according to your app function
         locationCallback = object : LocationCallback() {
@@ -338,16 +338,15 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
     private val DISTANCE_ACCURACY = 20.0
     private val AZIMUTH_ACCURACY = 10.0
     var mAzimuthTeoretical : Double = 0.0
-    var mAzimuthReal : Float = 0.0f
-    override fun onAzimuthChanged(azimuthFrom: Float, azimuthTo: Float) {
-        mAzimuthReal = azimuthTo
+    var mAzimuthReal : Double = 0.0
+    override fun onAzimuthChanged(azimuth: Double) {
+        mAzimuthReal = azimuth
         mAzimuthTeoretical = viewModel.calculateTeoreticalAzimuth()
-
 
         val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
         val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
 
-        if ((viewModel.isBetween(minAngle, maxAngle, mAzimuthReal.toDouble())&& distanceToTask<DISTANCE_ACCURACY)) {
+        if ((viewModel.isBetween(minAngle, maxAngle, mAzimuthReal)&& distanceToTask<DISTANCE_ACCURACY)) {
             //pointerIcon.setVisibility(View. VISIBLE );
             binding.textIsPointHitted.text = "Попал!"
         } else {

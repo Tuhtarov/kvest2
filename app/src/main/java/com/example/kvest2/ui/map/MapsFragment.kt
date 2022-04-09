@@ -24,8 +24,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 class MapsFragment : Fragment() {
     private lateinit var mMap: GoogleMap
     private val callback = OnMapReadyCallback { googleMap ->
-        val haga = LatLng(53.7247404, 91.4432434,)
-        googleMap.addMarker(MarkerOptions().position(haga).title("Любимая шарага"))
+        val haga = LatLng(53.7223716, 91.4403476,)
+        googleMap.addMarker(MarkerOptions().position(haga).title("Кто умнее всех на свете"))
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(haga))
 
     }

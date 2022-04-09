@@ -63,7 +63,7 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
         return phiAngle
     }
     var mAzimuthTeoretical : Double = 0.0
-    var mAzimuthReal : Float = 0.0f
+    var mAzimuthReal : Double = 0.0
 
     //расчитываем точность азимута, необходимую для отображения покемона
      fun calculateAzimuthAccuracy(azimuth: Double): List<Double>? {
