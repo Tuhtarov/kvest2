@@ -13,11 +13,7 @@ class QuestRepository(private val questDao: QuestDao) {
         return questDao.findAvailableByUserId(id)
     }
 
-    fun addQuest(quest: Quest) {
-        questDao.addQuest(quest)
-    }
-
-    fun findById(questId: Int): Quest? {
-        return questDao.findById(questId)
+    suspend fun insertQuests(quests: List<Quest>): Array<Long> {
+        return questDao.insertQuests(quests)
     }
 }

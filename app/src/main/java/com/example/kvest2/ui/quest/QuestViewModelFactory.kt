@@ -3,13 +3,13 @@ package com.example.kvest2.ui.quest
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.kvest2.data.api.AnswerRemoteRepository
+import com.example.kvest2.data.api.QuestRemoteRepository
+import com.example.kvest2.data.api.TaskRemoteRepository
 import com.example.kvest2.data.db.QuestDatabase
 import com.example.kvest2.data.model.AppTaskUserSingleton
 import com.example.kvest2.data.model.AppUserSingleton
-import com.example.kvest2.data.repository.QuestRepository
-import com.example.kvest2.data.repository.QuestUserRepository
-import com.example.kvest2.data.repository.TaskQuestRepository
-import com.example.kvest2.data.repository.TaskUserRepository
+import com.example.kvest2.data.repository.*
 
 class QuestViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
@@ -22,14 +22,23 @@ class QuestViewModelFactory(private val context: Context) : ViewModelProvider.Fa
             val questUserRelatedDao = db.questUserRelated()
             val taskQuestRelatedDao = db.taskQuestRelated()
             val taskUserRelatedDao = db.taskUserRelated()
+            val taskDao = db.taskDao()
+            val answerDao = db.answerDao()
 
-            return QuestSharedViewModel (
+            return QuestSharedViewModel(
                 currentUser = AppUserSingleton.getUser()!!,
-                questRepository =  QuestRepository(questDao),
-                questUserRepository =  QuestUserRepository(questUserDao, questUserRelatedDao),
+                questRepository = QuestRepository(questDao),
+                questRemoteRepository = QuestRemoteRepository(
+                    TaskRemoteRepository(
+                        AnswerRemoteRepository()
+                    )
+                ),
+                questUserRepository = QuestUserRepository(questUserDao, questUserRelatedDao),
                 taskQuestRepository = TaskQuestRepository(taskQuestRelatedDao),
                 taskUserRepository = TaskUserRepository(taskUserRelatedDao),
-                taskUserRelatedStore = AppTaskUserSingleton
+                taskUserRelatedStore = AppTaskUserSingleton,
+                taskRepository = TaskRepository(taskDao),
+                answerRepository = AnswerRepository(answerDao)
             ) as T
         }
 

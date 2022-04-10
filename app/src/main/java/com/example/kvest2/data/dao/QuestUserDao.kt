@@ -16,7 +16,7 @@ interface QuestUserDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addQuestUser(questUser: QuestUser)
 
-    @Query("UPDATE ${QuestUser.TABLE_NAME} SET `is_current` = 0 WHERE `user_id` = :userId")
+    @Query("UPDATE ${QuestUser.TABLE_NAME} SET `is_current` = 0 WHERE `user_id` = :userId AND `is_current` = 1")
     suspend fun clearCurrentQuestsByUser(userId: Int)
 
     @Query(

@@ -81,9 +81,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

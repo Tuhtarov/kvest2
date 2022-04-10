@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 )
 data class Answer (
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    var id: Int,
     val text: String,
 ) {
     companion object {
