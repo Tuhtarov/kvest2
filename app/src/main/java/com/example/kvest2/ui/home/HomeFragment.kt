@@ -82,7 +82,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
         }
         viewModel.testTask.observe(viewLifecycleOwner){
-            testLocation = viewModel.getLocationFromTask(it)
+            testLocation = viewModel.getLocationFromTask(it.task)
 
         }
 

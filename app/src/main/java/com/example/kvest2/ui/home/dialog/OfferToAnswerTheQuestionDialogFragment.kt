@@ -8,6 +8,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import com.example.kvest2.data.entity.Task
+import com.example.kvest2.data.entity.TaskAnswerRelated
 //import com.example.kvest2.data.model.AppDataOriginSingleton
 import com.example.kvest2.databinding.ChooseServerDialogFragmentBinding
 import com.example.kvest2.databinding.UserAnswerTaskDialogBinding
@@ -20,6 +21,7 @@ class OfferToAnswerTheQuestionDialogFragment: DialogFragment() {
 
     private val viewModel: QuestSharedViewModel by activityViewModels {
         QuestViewModelFactory(binding.root.context)
+
     }
 
     override fun onCreateView (
@@ -33,9 +35,9 @@ class OfferToAnswerTheQuestionDialogFragment: DialogFragment() {
 
         return binding.root
     }
-     fun show(manager: FragmentManager, tag: String?, task: Task, listener: (String) -> Unit) {
-        super.show(manager, tag)
-        binding.question.text =  task.question
+     fun show(manager: FragmentManager, tag: String?, task: TaskAnswerRelated, listener: (String) -> Unit) {
+
+        //binding.question.text =  task.task.question
 
 
         listener("Ответ")

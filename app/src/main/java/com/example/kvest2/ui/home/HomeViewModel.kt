@@ -6,8 +6,10 @@ import android.location.LocationManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.kvest2.data.entity.Answer
 import com.example.kvest2.data.entity.Quest
 import com.example.kvest2.data.entity.Task
+import com.example.kvest2.data.entity.TaskAnswerRelated
 import com.example.kvest2.data.repository.UserRepository
 import kotlin.math.abs
 
@@ -50,9 +52,11 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
 
 
 
-    val testTask : MutableLiveData<Task> = MutableLiveData<Task>()
+    val testTask : MutableLiveData<TaskAnswerRelated> = MutableLiveData<TaskAnswerRelated>()
     init{
-        testTask.value = Task(0,0,0,"Ты срал?","53.722128","91.442496")
+        val task = Task(0,0,0,"Ты срал?","53.722128","91.442496")
+        val answer = Answer(0, "Пирожок")
+        testTask.value = TaskAnswerRelated(task, answer)
     }
     fun getLocationFromTask(task:Task) : Location?
     {
