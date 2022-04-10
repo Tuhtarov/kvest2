@@ -3,43 +3,36 @@ package com.example.kvest2.data.api
 import com.example.kvest2.data.entity.Answer
 import com.example.kvest2.data.entity.Quest
 import com.example.kvest2.data.entity.Task
+import com.google.gson.annotations.SerializedName
 
-data class TaskApi(
+data class TaskApi (
     var id: Int,
+
+    @SerializedName("quest_id")
     var questId: Int? = null,
+
+    @SerializedName("correct_answer_id")
     val correctAnswerId: Int,
+
     val question: String,
     val latitude: String,
     val longitude: String,
     val score: Int? = 0,
     val priority: Int? = 0,
-
-    var correctAnswer: Answer?,
+    var answer: Answer?
 ) {
     companion object {
-        fun getTasks(questApi: QuestApi): MutableList<Task> {
-            repeat(questApi.tasks.size) {
-                questApi.tasks[it].id = 0
-            }
-
-            return questApi.tasks
-        }
-
-//
-//        fun getCorrectAnswer(taskApi: TaskApi): MutableList<Answer> {
-//            val answers = mutableListOf<Answer>()
-//
-//            repeat(taskApi.answer.size) {
-//                taskApi.answer[it].id = 0
-//
-//                answers.add(taskApi.answer[it])
-//            }
-//        }
-
-        fun setTasksToQuest(tasks: MutableList<Task>, quest: Quest) {
-            repeat(tasks.size) {
-                tasks[it].questId = quest.id
-            }
+        fun toTask(t: TaskApi): Task {
+            return Task (
+                id = t.id,
+                correctAnswerId = t.correctAnswerId,
+                latitude = t.latitude,
+                longitude = t.longitude,
+                priority = t.priority,
+                questId = t.questId,
+                question = t.question,
+                score = t.score
+            )
         }
     }
 }

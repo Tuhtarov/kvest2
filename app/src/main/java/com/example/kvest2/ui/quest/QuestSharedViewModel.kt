@@ -10,10 +10,7 @@ import com.example.kvest2.data.entity.*
 import com.example.kvest2.data.model.ApiFetchResult
 import com.example.kvest2.data.model.ApiResult
 import com.example.kvest2.data.model.TaskUserRelatedStore
-import com.example.kvest2.data.repository.QuestRepository
-import com.example.kvest2.data.repository.QuestUserRepository
-import com.example.kvest2.data.repository.TaskQuestRepository
-import com.example.kvest2.data.repository.TaskUserRepository
+import com.example.kvest2.data.repository.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -30,7 +27,9 @@ class QuestSharedViewModel(
     private val taskUserRepository: TaskUserRepository,
     private val taskQuestRepository: TaskQuestRepository,
     private val taskUserRelatedStore: TaskUserRelatedStore,
-    private val questRemoteRepository: QuestRemoteRepository
+    private val questRemoteRepository: QuestRemoteRepository,
+    private val answerRepository: AnswerRepository,
+    private val taskRepository: TaskRepository
 ) : ViewModel() {
 
     private lateinit var _questsAvailable: MutableList<Quest>
@@ -100,21 +99,25 @@ class QuestSharedViewModel(
 
     private suspend fun handleFetchedQuests(questsApi: MutableList<QuestApi>?) {
         if (questsApi.isNullOrEmpty()) {
-            apiFetchResult.postValue (
+            apiFetchResult.postValue(
                 ApiFetchResult("У сервера отсутствуют квесты!", false)
             )
 
             return
         }
 
-        val fetchedQuests = questRepository.getQuestsFromQuestsListApi(questsApi)
-        val count = questRepository.saveNonExisting(fetchedQuests)
+        val fetchedQuests = questRemoteRepository.getQuestsFromQuestsListApi(questsApi)
 
-        if (count > 0) {
-            apiFetchResult.postValue (
-                ApiFetchResult("Добавлено новых квестов: $count", false)
-            )
-        }
+        val fetchedTasks =
+            questRemoteRepository.taskRemoteRepository.getTasksFromQuestListApi(questsApi)
+
+        val fetchedAnswers =
+            questRemoteRepository.taskRemoteRepository.answerRemoteRepository
+                .getAnswersFromTaskListApi(questsApi)
+
+        questRepository.insertQuests(fetchedQuests)
+        answerRepository.insertAnswers(fetchedAnswers)
+        taskRepository.insertTasks(fetchedTasks)
     }
 
     private fun handleServerError(error: Exception) {

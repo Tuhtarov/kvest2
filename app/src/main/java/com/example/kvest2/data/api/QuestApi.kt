@@ -1,7 +1,6 @@
 package com.example.kvest2.data.api
 
 import com.example.kvest2.data.entity.Quest
-import com.example.kvest2.data.entity.Task
 
 data class QuestApi (
     val id: Int,
@@ -9,12 +8,12 @@ data class QuestApi (
     val description: String,
     val createdAt: String,
 
-    var tasks: MutableList<Task>
+    var tasks: MutableList<TaskApi>
 ) {
     companion object {
         fun getQuest(questApi: QuestApi): Quest {
             return Quest (
-                id = 0,
+                id = questApi.id,
                 name = questApi.name,
                 description = questApi.description,
                 createdAt = questApi.createdAt

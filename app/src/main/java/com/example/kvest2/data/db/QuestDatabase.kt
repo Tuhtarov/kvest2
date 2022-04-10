@@ -108,6 +108,10 @@ val addNewIndexes = object : Migration(4, 5) {
 abstract class QuestDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
 
+    abstract fun taskDao(): TaskDao
+
+    abstract fun answerDao(): AnswerDao
+
     abstract fun questDao(): QuestDao
 
     abstract fun questUserDao(): QuestUserDao

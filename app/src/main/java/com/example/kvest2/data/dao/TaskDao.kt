@@ -9,8 +9,8 @@ import com.example.kvest2.data.entity.Task
 
 @Dao
 interface TaskDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun addTask(task: Task)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTasks(tasks: List<Task>): Array<Long>
 
     @Query("SELECT * FROM ${Task.TABLE_NAME} ORDER BY id ASC")
     fun readAll(): LiveData<List<Task>>

@@ -9,7 +9,8 @@ object RetrofitInstance {
         Retrofit
             .Builder()
             .baseUrl (
-                AppDataOrigin.chooseCustom("172.20.10.8", "8001").getBaseUrl()
+//                AppDataOrigin.chooseCustom("172.20.10.8", "8001").getBaseUrl()
+                AppDataOrigin.chooseCustom("10.0.0.134", "8001").getBaseUrl()
 //                AppDataOrigin.chooseRemote().baseUrl
             )
             .addConverterFactory(GsonConverterFactory.create())

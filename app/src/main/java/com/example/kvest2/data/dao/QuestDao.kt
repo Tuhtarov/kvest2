@@ -10,8 +10,11 @@ import com.example.kvest2.data.entity.QuestUser
 
 @Dao
 interface QuestDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertQuest(quest: Quest)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertQuests(quests: List<Quest>): Array<Long>
 
     @Query("SELECT * FROM ${Quest.TABLE_NAME} ORDER BY created_at ASC")
     fun readAll(): LiveData<List<Quest>>
