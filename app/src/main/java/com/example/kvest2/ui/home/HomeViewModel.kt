@@ -3,14 +3,18 @@ package com.example.kvest2.ui.home
 import android.hardware.Camera
 import android.location.Location
 import android.location.LocationManager
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.kvest2.data.entity.Quest
+import com.example.kvest2.data.entity.Task
 import com.example.kvest2.data.repository.UserRepository
 import kotlin.math.abs
 
 
 class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
     /** A safe way to get an instance of the Camera object. */
-    lateinit var locationManager: LocationManager
+
 
     fun getCameraInstance(): Camera? {
         return try {
@@ -20,6 +24,9 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
             null // returns null if camera is unavailable
         }
     }
+
+    val isCanDisplayed = MutableLiveData<Boolean>(false)
+
 
     /*нам понадобятся, помимо прочего, две константы для хранения допустимых отклонений дистанции и азимута
     устройства от целевых. Значения подобраны практически, вы можете их менять, чтобы облегчить, или наоборот,
@@ -41,6 +48,26 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
     lateinit var taskLocation: Location
     lateinit var deviceLocation:Location
 
+
+
+    val testTask : MutableLiveData<Task> = MutableLiveData<Task>()
+    init{
+        testTask.value = Task(0,0,0,"Ты срал?","53.722128","91.442496")
+    }
+    fun getLocationFromTask(task:Task) : Location?
+    {
+        val longitude = task.longitude.toDoubleOrNull()
+        val latitude = task.latitude.toDoubleOrNull()
+
+        if(longitude == null && latitude == null) {
+            return null
+        } else {
+            val location = Location("aboba")
+            location.latitude = latitude!!
+            location.longitude = longitude!!
+            return location
+        }
+    }
     /*вычисляем теоретический азимут по формуле, о которой я говорил в начале урока.
     Вычисление азимута для разных четвертей производим на основе таблицы. */
     fun calculateTeoreticalAzimuth(): Double {
@@ -62,8 +89,7 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
         return phiAngle
     }
-    var mAzimuthTeoretical : Double = 0.0
-    var mAzimuthReal : Double = 0.0
+
 
     //расчитываем точность азимута, необходимую для отображения покемона
      fun calculateAzimuthAccuracy(azimuth: Double): List<Double>? {

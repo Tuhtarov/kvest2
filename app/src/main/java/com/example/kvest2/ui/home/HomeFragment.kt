@@ -12,14 +12,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.kvest2.R
+import com.example.kvest2.data.entity.Task
 import com.example.kvest2.databinding.HomeFragmentBinding
 import com.example.kvest2.ui.camera.CameraPreview
+import com.example.kvest2.ui.home.dialog.OfferToAnswerTheQuestionDialogFragment
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 
@@ -63,9 +66,30 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         startCamera()
         setupListeners()
 
+        val dialog = OfferToAnswerTheQuestionDialogFragment()
+        viewModel.isCanDisplayed.observe(viewLifecycleOwner) {
+            if (it && !dialog.isAdded) {
+                dialog.show(
+                    parentFragmentManager,
+                    "offerToTransfer",
+                    viewModel.testTask.value!!
+
+                ){
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                }
+
+            }
+
+        }
+        viewModel.testTask.observe(viewLifecycleOwner){
+            testLocation = viewModel.getLocationFromTask(it)
+
+        }
+
         return binding.root
     }
 
+    private  var testLocation :Location? = null
 
 
 
@@ -256,10 +280,9 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult ?: return
 
-                if (locationResult.locations.isNotEmpty()) {
+                if (locationResult.locations.isNotEmpty() && testLocation !=null) {
                     // get latest location
                     currentDeviceLocation = locationResult.lastLocation
-
 
                     // use your location object
                     // get latitude , longitude and other info from this
@@ -269,12 +292,11 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                     Log.i(TAG, currentDeviceLocation.latitude.toString())
                     Log.i(TAG, currentDeviceLocation.longitude.toString())
 
-                    testLocation.longitude = 91.442496
-                    testLocation.latitude = 53.722128
 
-                    distanceToTask = viewModel.getDistanceToTask(testLocation,currentDeviceLocation)
 
-                    viewModel.taskLocation = testLocation
+                    distanceToTask = viewModel.getDistanceToTask(testLocation!!,currentDeviceLocation)
+
+                    viewModel.taskLocation = testLocation!!
                     viewModel.deviceLocation = currentDeviceLocation
 
 
@@ -283,9 +305,10 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             }
         }
     }
+
     var distanceToTask : Float = 0.0f
     //тестовая точка "задания" квеста
-    val testLocation : Location = Location("aboba")
+    //val testLocation : Location = Location("aboba")
 
     //start location updates
     private fun startLocationUpdates() {
@@ -334,6 +357,8 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
     private val DISTANCE_ACCURACY = 20.0
 
+
+
     var mAzimuthTeoretical : Double = 0.0
     var mAzimuthReal : Double = 0.0
     override fun onAzimuthChanged(azimuth: Double) {
@@ -346,17 +371,22 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                     minAngle,
                     maxAngle,
                     mAzimuthReal
-                )) && distanceToTask <= DISTANCE_ACCURACY
+                ))
             ) {
                 //pointerIcon.setVisibility(View. VISIBLE );
                 binding.textIsPointHitted.text = "Попал!"
                 binding.textDistanceToPoint.visibility = View.VISIBLE
+
                 //TODO вывод модалки для начала ответа (приостановить camera preview, получение геопозиции, изменения азимута)
+                viewModel.isCanDisplayed.value = true
+
+
 
             } else {
                 //pointerIcon.setVisibility(View. INVISIBLE );
                 binding.textIsPointHitted.text = "Мимо..."
                 binding.textDistanceToPoint.visibility = View.INVISIBLE
+                viewModel.isCanDisplayed.value = false
             }
 
             binding.textCurrentAzimuth.text = mAzimuthReal.toString()
