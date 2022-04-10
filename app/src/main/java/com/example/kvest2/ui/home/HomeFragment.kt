@@ -57,9 +57,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         getLocationUpdates()
 
-        val location : Location = Location("aboba")
-        val location1 : Location = Location("aboba")
-        viewModel.setLocationInstances(location, location1)
+
         onRequestCameraPermission(view)
 
         startCamera()
@@ -77,7 +75,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         viewModel.isCanDisplayed.observe(viewLifecycleOwner) {
             if (it && dialog != null) {
                 if (dialog!!.isAdded) {
-                    dialog!!.show(parentFragmentManager,"offerToTransfer")
+                    dialog!!.show(parentFragmentManager, "offerToTransfer")
                 }
             }
         }
@@ -87,7 +85,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             }
         }
 
-        viewModel.currentTask.observe(viewLifecycleOwner){
+        viewModel.currentTask.observe(viewLifecycleOwner) {
             if (it != null) {
                 testLocation = viewModel.getLocationFromTask(it.task)
             }
@@ -96,11 +94,11 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         return binding.root
     }
 
-    private  var testLocation :Location? = null
+    private var testLocation: Location? = null
 
 
+    lateinit var myCurrentAzimuth: MyCurrentAzimuth
 
-    lateinit var myCurrentAzimuth : MyCurrentAzimuth
     /*метод setupListeners служит для инициализации слушателей местоположения и азимута - здесь
     мы вызываем конструкторы классов MyCurrentLocation и MyCurrentAzimuth и выполняем их методы start*/
     private fun setupListeners() {
@@ -108,7 +106,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         myCurrentAzimuth.start()
     }
 
-    var mCamera : Camera? = null
+    var mCamera: Camera? = null
     private fun startCamera() {
         mCamera = viewModel.getCameraInstance()
 
@@ -263,8 +261,10 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
     // declare a global variable FusedLocationProviderClient
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     // globally declare LocationRequest
     private lateinit var locationRequest: LocationRequest
+
     // globally declare LocationCallback
     private lateinit var locationCallback: LocationCallback
 
@@ -273,21 +273,20 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
      * call this method in onCreate
      * onLocationResult call when location is changed
      */
-    lateinit var currentDeviceLocation : Location
-    private fun getLocationUpdates()
-    {
-
+    lateinit var currentDeviceLocation: Location
+    private fun getLocationUpdates() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationRequest = LocationRequest()
         locationRequest.interval = 3000
         locationRequest.fastestInterval = 500
         locationRequest.smallestDisplacement = 1f // 170 m = 0.1 mile
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY //set according to your app function
+        locationRequest.priority =
+            LocationRequest.PRIORITY_HIGH_ACCURACY //set according to your app function
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult ?: return
 
-                if (locationResult.locations.isNotEmpty() && testLocation !=null) {
+                if (locationResult.locations.isNotEmpty()) {
                     // get latest location
                     currentDeviceLocation = locationResult.lastLocation
 
@@ -300,20 +299,20 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                     Log.i(TAG, currentDeviceLocation.longitude.toString())
 
 
-
-                    distanceToTask = viewModel.getDistanceToTask(testLocation!!,currentDeviceLocation)
-
-                    viewModel.taskLocation = testLocation!!
+                    //distanceToTask = viewModel.getDistanceToTask(taskLocation,currentDeviceLocation)
+                    //viewModel.taskLocation = testLocation!!
                     viewModel.deviceLocation = currentDeviceLocation
 
 
-                    binding.distanceToPointInCircle.text = distanceToTask.toString()
+                    //binding.distanceToPointInCircle.text = distanceToTask.toString()
+                } else {
+                    Log.i(TAG, "местоположения нету:(:(")
                 }
             }
         }
     }
 
-    var distanceToTask : Float = 0.0f
+    var distanceToTask: Float = 0.0f
     //тестовая точка "задания" квеста
     //val testLocation : Location = Location("aboba")
 
@@ -353,6 +352,14 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         super.onPause()
         stopLocationUpdates()
         mCamera?.stopPreview()
+        myCurrentAzimuth.stop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopLocationUpdates()
+        mCamera?.stopPreview()
+        myCurrentAzimuth.stop()
     }
 
     // start receiving location update when activity  visible/foreground
@@ -360,14 +367,14 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         super.onResume()
         startLocationUpdates()
         mCamera?.startPreview()
+        myCurrentAzimuth.start()
     }
 
     private val DISTANCE_ACCURACY = 20.0
 
 
-
-    var mAzimuthTeoretical : Double = 0.0
-    var mAzimuthReal : Double = 0.0
+    var mAzimuthTeoretical: Double = 0.0
+    var mAzimuthReal: Double = 0.0
     override fun onAzimuthChanged(azimuth: Double) {
         mAzimuthReal = azimuth
         if (!mAzimuthReal.isNaN()) {
@@ -375,17 +382,27 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
             val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
 
-            if (viewModel.isBetween(minAngle,maxAngle,mAzimuthReal))
-            {
+            if (viewModel.isBetween(minAngle, maxAngle, mAzimuthReal)) {
+                //TODO видищь говнокодище? надо исправить....
                 binding.circleWithDistance.visibility = View.VISIBLE
+                var task = AppCurrentTasksSingleton.currentTasks.value?.get(0)
+                var location2 = Location("aaa")
+                location2.latitude = task?.task?.latitude?.toDoubleOrNull()!!
+                location2.longitude = task?.task?.longitude?.toDoubleOrNull()!!
+                distanceToTask = viewModel.getDistanceToTask(location2, currentDeviceLocation)
+                binding.distanceToPointInCircle.text = distanceToTask.toString()
+
+            } else {
+                binding.circleWithDistance.visibility = View.INVISIBLE
+                distanceToTask = 0f
             }
-            else binding.circleWithDistance.visibility = View.INVISIBLE
+
 
             if ((viewModel.isBetween(
                     minAngle,
                     maxAngle,
                     mAzimuthReal
-                )&& distanceToTask<=DISTANCE_ACCURACY)
+                ) && distanceToTask <= DISTANCE_ACCURACY)
             ) {
                 //pointerIcon.setVisibility(View. VISIBLE );
                 binding.textIsPointHitted.text = "Попал!"
@@ -393,8 +410,6 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
                 //TODO вывод модалки для начала ответа (приостановить camera preview, получение геопозиции, изменения азимута)
                 viewModel.isCanDisplayed.value = true
-
-
 
             } else {
                 //pointerIcon.setVisibility(View. INVISIBLE );
@@ -405,15 +420,10 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
             binding.textCurrentAzimuth.text = mAzimuthReal.toString()
             binding.textTargetAzimuth.text = mAzimuthTeoretical.toString()
-        }
-        else {
+        } else {
             binding.textIsPointHitted.text = "Положение!"
+            binding.circleWithDistance.visibility = View.INVISIBLE
+            //mCamera?.stopPreview()
         }
     }
-
-    private fun showTaskBubble()
-    {
-
-    }
-
 }

@@ -44,21 +44,19 @@ class HomeViewModel(
     усложнить задачу поиска покемона. Точность дистанции указана в условных единицах, равных примерно 0.9м,
     а точность азимута - в градусах*/
     private val DISTANCE_ACCURACY = 20.0
-    private val AZIMUTH_ACCURACY = 7.0
+    private val AZIMUTH_ACCURACY = 8.0
 
 
     fun getDistanceToTask(taskLocation: Location, userLocation: Location): Float {
         return userLocation.distanceTo(taskLocation)
     }
 
-    fun setLocationInstances(tLocation: Location, dLocation: Location)
-    {
-        taskLocation = tLocation
-        deviceLocation = dLocation
-    }
     lateinit var taskLocation: Location
     lateinit var deviceLocation:Location
-
+    init {
+        taskLocation = Location("test")
+        deviceLocation = Location("test2")
+    }
     val currentTask : MutableLiveData<TaskAnswerRelated> = MutableLiveData<TaskAnswerRelated>()
 
     init {
