@@ -1,7 +1,6 @@
 package com.example.kvest2.data.db
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -92,6 +91,26 @@ val addNewIndexes = object : Migration(4, 5) {
     }
 }
 
+val addCascadeOnDeleteAndUpdateToTask = object : Migration(5, 6) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("DROP TABLE IF EXISTS ${Task.TABLE_NAME}")
+
+        database.execSQL("CREATE TABLE IF NOT EXISTS ${Task.TABLE_NAME} " +
+                "(`id` INTEGER PRIMARY KEY NOT NULL," +
+                " `quest_id` INTEGER," +
+                " `correct_answer_id` INTEGER NOT NULL," +
+                " `question` TEXT NOT NULL," +
+                " `latitude` TEXT NOT NULL," +
+                " `longitude` TEXT NOT NULL," +
+                " `score` INTEGER," +
+                " `priority` INTEGER," +
+                " FOREIGN KEY(quest_id) REFERENCES ${Quest.TABLE_NAME}(id) ON DELETE CASCADE ON UPDATE CASCADE," +
+                " FOREIGN KEY(correct_answer_id) REFERENCES ${Answer.TABLE_NAME}(id) ON DELETE CASCADE ON UPDATE CASCADE)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS index_task_correct_answer_id ON ${Task.TABLE_NAME} (correct_answer_id);")
+        database.execSQL("CREATE INDEX IF NOT EXISTS index_task_quest_id ON ${Task.TABLE_NAME} (quest_id);")
+    }
+}
+
 
 @Database (
     entities = [
@@ -102,7 +121,7 @@ val addNewIndexes = object : Migration(4, 5) {
         TaskUser::class,
         QuestUser::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class QuestDatabase: RoomDatabase() {
@@ -140,7 +159,13 @@ abstract class QuestDatabase: RoomDatabase() {
                     QuestDatabase::class.java,
                     "quest_database"
                 )
-                    .addMigrations(recreateUserTable, addColumnIsLoggedToUserTable, addNewColumns, addNewIndexes)
+                    .addMigrations(
+                        recreateUserTable,
+                        addColumnIsLoggedToUserTable,
+                        addNewColumns,
+                        addNewIndexes,
+                        addCascadeOnDeleteAndUpdateToTask
+                    )
                     .build()
 
                 INSTANCE = instance

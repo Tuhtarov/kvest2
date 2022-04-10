@@ -3,6 +3,7 @@ package com.example.kvest2.data.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -12,11 +13,15 @@ import androidx.room.PrimaryKey
             entity = Quest::class,
             parentColumns = ["id"],
             childColumns = ["quest_id"],
+            onUpdate = CASCADE,
+            onDelete = CASCADE
         ),
         ForeignKey (
             entity = Answer::class,
             parentColumns = ["id"],
             childColumns = ["correct_answer_id"],
+            onUpdate = CASCADE,
+            onDelete = CASCADE
         )
     ]
 )

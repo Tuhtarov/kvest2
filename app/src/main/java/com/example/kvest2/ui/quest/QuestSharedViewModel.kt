@@ -12,9 +12,7 @@ import com.example.kvest2.data.model.ApiResult
 import com.example.kvest2.data.model.TaskUserRelatedStore
 import com.example.kvest2.data.repository.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import retrofit2.Response
 
 /**
  * ViewModel для фрагментов списка пользовательских квестов

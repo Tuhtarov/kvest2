@@ -1,7 +1,5 @@
 package com.example.kvest2.data.model
 
-import com.example.kvest2.data.entity.TaskQuestRelated
-
 interface ServerData {
     val host: String
     val port: String?
@@ -21,7 +19,7 @@ class RemoteQuestOrigin : DataQuestOrigin() {
 }
 
 object AppDataOrigin {
-    fun chooseRemote(): DataQuestOrigin {
+    fun chooseDefault(): DataQuestOrigin {
         return RemoteQuestOrigin()
     }
 
