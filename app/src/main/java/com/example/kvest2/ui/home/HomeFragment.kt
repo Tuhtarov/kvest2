@@ -3,6 +3,7 @@ package com.example.kvest2.ui.home
 import android.Manifest
 import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
+import android.hardware.Camera
 import android.location.Location
 import android.os.Bundle
 import android.os.Looper
@@ -62,14 +63,10 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         startCamera()
         setupListeners()
 
-
         return binding.root
     }
 
-    private fun getLocation()
-    {
 
-    }
 
 
     lateinit var myCurrentAzimuth : MyCurrentAzimuth
@@ -79,8 +76,10 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         myCurrentAzimuth = MyCurrentAzimuth(this, requireContext())
         myCurrentAzimuth.start()
     }
+
+    var mCamera : Camera? = null
     private fun startCamera() {
-        var mCamera = viewModel.getCameraInstance()
+        mCamera = viewModel.getCameraInstance()
 
         var mPreview: CameraPreview? = null
 
@@ -91,6 +90,8 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             val preview: FrameLayout = binding.cameraPreview
             preview.addView(it)
         }
+
+
     }
 
     private fun View.showSnackbar(
@@ -186,7 +187,6 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                     null
                 ) {}
             }
-
             ActivityCompat.shouldShowRequestPermissionRationale(
                 requireActivity(),
                 Manifest.permission.CAMERA
@@ -202,7 +202,6 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                     )
                 }
             }
-
             else -> {
                 requestPermissionLauncher.launch(
                     Manifest.permission.CAMERA
@@ -259,16 +258,16 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
                 if (locationResult.locations.isNotEmpty()) {
                     // get latest location
-                    currentDeviceLocation =
-                        locationResult.lastLocation
+                    currentDeviceLocation = locationResult.lastLocation
+
+
                     // use your location object
                     // get latitude , longitude and other info from this
                     binding.textLatitude.text = currentDeviceLocation.latitude.toString()
                     binding.textLongitude.text = currentDeviceLocation.longitude.toString()
+
                     Log.i(TAG, currentDeviceLocation.latitude.toString())
                     Log.i(TAG, currentDeviceLocation.longitude.toString())
-
-
 
                     testLocation.longitude = 91.442496
                     testLocation.latitude = 53.722128
@@ -280,11 +279,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
 
                     binding.textDistanceToPoint.text = distanceToTask.toString()
-
-
                 }
-
-
             }
         }
     }
@@ -327,35 +322,54 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
     override fun onPause() {
         super.onPause()
         stopLocationUpdates()
+        mCamera?.stopPreview()
     }
 
     // start receiving location update when activity  visible/foreground
     override fun onResume() {
         super.onResume()
         startLocationUpdates()
+        mCamera?.startPreview()
     }
 
     private val DISTANCE_ACCURACY = 20.0
-    private val AZIMUTH_ACCURACY = 10.0
+
     var mAzimuthTeoretical : Double = 0.0
     var mAzimuthReal : Double = 0.0
     override fun onAzimuthChanged(azimuth: Double) {
         mAzimuthReal = azimuth
-        mAzimuthTeoretical = viewModel.calculateTeoreticalAzimuth()
+        if (!mAzimuthReal.isNaN()) {
+            mAzimuthTeoretical = viewModel.calculateTeoreticalAzimuth()
+            val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
+            val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
+            if ((viewModel.isBetween(
+                    minAngle,
+                    maxAngle,
+                    mAzimuthReal
+                )) && distanceToTask <= DISTANCE_ACCURACY
+            ) {
+                //pointerIcon.setVisibility(View. VISIBLE );
+                binding.textIsPointHitted.text = "Попал!"
+                binding.textDistanceToPoint.visibility = View.VISIBLE
+                //TODO вывод модалки для начала ответа (приостановить camera preview, получение геопозиции, изменения азимута)
 
-        val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
-        val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
+            } else {
+                //pointerIcon.setVisibility(View. INVISIBLE );
+                binding.textIsPointHitted.text = "Мимо..."
+                binding.textDistanceToPoint.visibility = View.INVISIBLE
+            }
 
-        if ((viewModel.isBetween(minAngle, maxAngle, mAzimuthReal)&& distanceToTask<DISTANCE_ACCURACY)) {
-            //pointerIcon.setVisibility(View. VISIBLE );
-            binding.textIsPointHitted.text = "Попал!"
-        } else {
-            //pointerIcon.setVisibility(View. INVISIBLE );
-            binding.textIsPointHitted.text = "Мимо..."
+            binding.textCurrentAzimuth.text = mAzimuthReal.toString()
+            binding.textTargetAzimuth.text = mAzimuthTeoretical.toString()
         }
+        else {
+            binding.textIsPointHitted.text = "Положение!"
+        }
+    }
 
-        binding.textCurrentAzimuth.text = mAzimuthReal.toString()
-        binding.textTargetAzimuth.text = mAzimuthTeoretical.toString()
+    private fun showTaskBubble()
+    {
+
     }
 
 }

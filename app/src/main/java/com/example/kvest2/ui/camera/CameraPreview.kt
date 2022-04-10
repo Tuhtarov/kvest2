@@ -23,7 +23,13 @@ class CameraPreview(
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         // The Surface has been created, now tell the camera where to draw the preview.
-        mCamera.parameters
+        val params: Camera.Parameters = mCamera.parameters
+        if (params.supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            params.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
+        } else {
+            //Choose another supported mode
+        }
+
         mCamera.apply {
             try {
                 setPreviewDisplay(holder)
@@ -33,6 +39,7 @@ class CameraPreview(
                 Log.d(TAG, "Error setting camera preview: ${e.message}")
             }
         }
+        mCamera.setParameters(params);
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
