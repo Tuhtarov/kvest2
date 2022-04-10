@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kvest2.R
-import com.example.kvest2.data.model.AppDataOriginSingleton
 import com.example.kvest2.data.model.LoggedUser
 import com.example.kvest2.data.repository.UserRepository
 import kotlinx.coroutines.Dispatchers

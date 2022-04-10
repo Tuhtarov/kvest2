@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.example.kvest2.data.model.AppDataOriginSingleton
+//import com.example.kvest2.data.model.AppDataOriginSingleton
 import com.example.kvest2.databinding.ChooseServerDialogFragmentBinding
 import com.example.kvest2.ui.quest.QuestSharedViewModel
 import com.example.kvest2.ui.quest.QuestViewModelFactory
@@ -33,21 +33,17 @@ class ChooseServerDialogFragment: DialogFragment() {
     }
 
     private fun initDialogListeners() = with(binding) {
-        onDismiss(this)
-
         acceptBtn.setOnClickListener {
-            dismiss()
-        }
-    }
+//            if (binding.radioButtonCustom.isChecked) {
+//                AppDataOriginSingleton.chooseCustom (
+//                    host = binding.serverHost.text.toString(),
+//                    port = binding.serverPort.text.toString()
+//                )
+//            } else if (binding.radioButtonRemote.isChecked) {
+//                AppDataOriginSingleton.chooseRemote()
+//            }
 
-    private fun onDismiss(dialog: ChooseServerDialogFragmentBinding) {
-        if (binding.radioButtonCustom.isActivated) {
-            AppDataOriginSingleton.chooseCustom (
-                host = binding.serverHost.text.toString(),
-                port = binding.serverPort.text.toString()
-            )
-        } else if (binding.radioButtonRemote.isActivated) {
-            AppDataOriginSingleton.chooseRemote()
+            dismiss()
         }
     }
 }

@@ -3,6 +3,7 @@ package com.example.kvest2.ui.quest
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.kvest2.data.api.QuestRemoteRepository
 import com.example.kvest2.data.db.QuestDatabase
 import com.example.kvest2.data.model.AppTaskUserSingleton
 import com.example.kvest2.data.model.AppUserSingleton
@@ -26,6 +27,7 @@ class QuestViewModelFactory(private val context: Context) : ViewModelProvider.Fa
             return QuestSharedViewModel (
                 currentUser = AppUserSingleton.getUser()!!,
                 questRepository =  QuestRepository(questDao),
+                questRemoteRepository = QuestRemoteRepository(),
                 questUserRepository =  QuestUserRepository(questUserDao, questUserRelatedDao),
                 taskQuestRepository = TaskQuestRepository(taskQuestRelatedDao),
                 taskUserRepository = TaskUserRepository(taskUserRelatedDao),

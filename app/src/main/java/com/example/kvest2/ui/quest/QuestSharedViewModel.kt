@@ -4,26 +4,33 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kvest2.data.api.QuestApi
+import com.example.kvest2.data.api.QuestRemoteRepository
 import com.example.kvest2.data.entity.*
+import com.example.kvest2.data.model.ApiFetchResult
+import com.example.kvest2.data.model.ApiResult
 import com.example.kvest2.data.model.TaskUserRelatedStore
 import com.example.kvest2.data.repository.QuestRepository
 import com.example.kvest2.data.repository.QuestUserRepository
 import com.example.kvest2.data.repository.TaskQuestRepository
 import com.example.kvest2.data.repository.TaskUserRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 /**
  * ViewModel для фрагментов списка пользовательских квестов
  * и для добавления квеста (Quest) в пользовательские квесты (QuestUser)
  */
-class QuestSharedViewModel (
+class QuestSharedViewModel(
     private val currentUser: User,
     private val questRepository: QuestRepository,
     private val questUserRepository: QuestUserRepository,
     private val taskUserRepository: TaskUserRepository,
     private val taskQuestRepository: TaskQuestRepository,
-    private val taskUserRelatedStore: TaskUserRelatedStore
+    private val taskUserRelatedStore: TaskUserRelatedStore,
+    private val questRemoteRepository: QuestRemoteRepository
 ) : ViewModel() {
 
     private lateinit var _questsAvailable: MutableList<Quest>
@@ -36,14 +43,22 @@ class QuestSharedViewModel (
     val userTasks = MutableLiveData<MutableList<TaskUserRelated>>()
     val questTasks = MutableLiveData<MutableList<TaskQuestRelated>>()
 
+    val fetchQuestIsLoading = MutableLiveData<Boolean?>(null)
+    val apiFetchResult = MutableLiveData<ApiResult>()
+
     init {
         // инициализируем листы, заполняем данными из БД
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             // получаем доступные квесты для добавления текущим пользователем
             launch {
-                _questsAvailable = questRepository.findAvailableByUserId(currentUser.id)
-                questsAvailable.postValue(_questsAvailable)
+                fetchQuestsFromApi()
             }
+                .invokeOnCompletion {
+                    launch {
+                        _questsAvailable = questRepository.findAvailableByUserId(currentUser.id)
+                        questsAvailable.postValue(_questsAvailable)
+                    }
+                }
 
             // получаем пользовательские квесты для прохождения заданий
             launch {
@@ -65,6 +80,47 @@ class QuestSharedViewModel (
                 taskUserRelatedStore.setUserTasks(_userTasks)
             }
         }
+    }
+
+    private suspend fun fetchQuestsFromApi() {
+        fetchQuestIsLoading.postValue(true)
+
+        try {
+            val response = questRemoteRepository.getQuests()
+
+            if (response.isSuccessful) {
+                handleFetchedQuests(response.body())
+            }
+        } catch (e: Exception) {
+            handleServerError(e)
+        }
+
+        fetchQuestIsLoading.postValue(false)
+    }
+
+    private suspend fun handleFetchedQuests(questsApi: MutableList<QuestApi>?) {
+        if (questsApi.isNullOrEmpty()) {
+            apiFetchResult.postValue (
+                ApiFetchResult("У сервера отсутствуют квесты!", false)
+            )
+
+            return
+        }
+
+        val fetchedQuests = questRepository.getQuestsFromQuestsListApi(questsApi)
+        val count = questRepository.saveNonExisting(fetchedQuests)
+
+        if (count > 0) {
+            apiFetchResult.postValue (
+                ApiFetchResult("Добавлено новых квестов: $count", false)
+            )
+        }
+    }
+
+    private fun handleServerError(error: Exception) {
+        apiFetchResult.postValue(
+            ApiFetchResult(error.message.toString(), true)
+        )
     }
 
     /**
@@ -89,7 +145,7 @@ class QuestSharedViewModel (
         }
 
         _questsAvailable = questAvailableUpdated
-        questsAvailable.value =_questsAvailable
+        questsAvailable.value = _questsAvailable
     }
 
     private fun saveQuestUserToDB(questUser: QuestUser) {

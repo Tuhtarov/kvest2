@@ -22,10 +22,10 @@ import androidx.room.PrimaryKey
 )
 data class Task (
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    var id: Int,
 
     @ColumnInfo(name = "quest_id", index = true)
-    val questId: Int? = null,
+    var questId: Int? = null,
 
     @ColumnInfo(name = "correct_answer_id", index = true)
     val correctAnswerId: Int,
