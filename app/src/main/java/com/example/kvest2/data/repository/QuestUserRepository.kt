@@ -26,7 +26,7 @@ class QuestUserRepository (
         questUserDao.clearCurrentQuestsByUser(id)
     }
 
-    suspend fun setCurrent(questUser: QuestUser, status: Boolean) {
+    suspend fun setCurrentQuest(questUser: QuestUser, status: Boolean) {
         questUserDao.setCurrent (
             userId = questUser.userId,
             questUserId = questUser.id,
