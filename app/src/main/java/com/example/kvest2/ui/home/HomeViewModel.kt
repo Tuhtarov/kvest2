@@ -2,19 +2,28 @@ package com.example.kvest2.ui.home
 
 import android.hardware.Camera
 import android.location.Location
-import android.location.LocationManager
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.kvest2.data.entity.Answer
-import com.example.kvest2.data.entity.Quest
 import com.example.kvest2.data.entity.Task
 import com.example.kvest2.data.entity.TaskAnswerRelated
+import com.example.kvest2.data.entity.User
+import com.example.kvest2.data.model.AppCurrentTasksSingleton
+import com.example.kvest2.data.repository.QuestRepository
+import com.example.kvest2.data.repository.TaskRepository
 import com.example.kvest2.data.repository.UserRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 
-class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
+class HomeViewModel(
+    private val userRepository: UserRepository,
+    private val questRepository: QuestRepository,
+    private val taskRepository: TaskRepository,
+    private val currentUser: User
+) : ViewModel() {
     /** A safe way to get an instance of the Camera object. */
 
 
@@ -50,14 +59,23 @@ class HomeViewModel(private val userRepository: UserRepository) : ViewModel() {
     lateinit var taskLocation: Location
     lateinit var deviceLocation:Location
 
+    val currentTask : MutableLiveData<TaskAnswerRelated> = MutableLiveData<TaskAnswerRelated>()
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentQuest = questRepository.findCurrentQuestByUserId(currentUser.id)
 
-    val testTask : MutableLiveData<TaskAnswerRelated> = MutableLiveData<TaskAnswerRelated>()
-    init{
-        val task = Task(0,0,0,"Ты срал?","53.722128","91.442496")
-        val answer = Answer(0, "Пирожок")
-        testTask.value = TaskAnswerRelated(task, answer)
+            if (currentQuest != null) {
+                val tasks = taskRepository.getAllRelatedByQuestId(currentQuest.quest.id)
+
+                AppCurrentTasksSingleton.currentTasks.postValue(tasks)
+                AppCurrentTasksSingleton.currentQuest.postValue(currentQuest)
+            }
+
+            currentTask.postValue(AppCurrentTasksSingleton.currentTasks.value?.get(0))
+        }
     }
+
     fun getLocationFromTask(task:Task) : Location?
     {
         val longitude = task.longitude.toDoubleOrNull()

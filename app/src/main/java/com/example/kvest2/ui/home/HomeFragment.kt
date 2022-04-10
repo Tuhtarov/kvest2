@@ -18,15 +18,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import com.example.kvest2.R
-import com.example.kvest2.data.entity.Task
 import com.example.kvest2.data.model.AppCurrentTasksSingleton
 import com.example.kvest2.databinding.HomeFragmentBinding
 import com.example.kvest2.ui.camera.CameraPreview
 import com.example.kvest2.ui.home.dialog.OfferToAnswerTheQuestionDialogFragment
-import com.example.kvest2.ui.quest.QuestSharedViewModel
-import com.example.kvest2.ui.quest.QuestViewModelFactory
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 
@@ -36,24 +32,20 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         fun newInstance() = HomeFragment()
     }
 
-    private lateinit var viewModel: HomeViewModel
+    private val viewModel: HomeViewModel by activityViewModels {
+        HomeViewModelFactory(binding.root.context)
+    }
 
     private lateinit var binding: HomeFragmentBinding
 
     private lateinit var layout: View
 
-    private val viewModelQuests: QuestSharedViewModel by activityViewModels {
-        QuestViewModelFactory(binding.root.context)
-    }
+    var dialog: OfferToAnswerTheQuestionDialogFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        viewModel = ViewModelProvider(this, HomeViewModelFactory(requireContext()))
-            .get(HomeViewModel::class.java)
-
         binding = HomeFragmentBinding.inflate(inflater, container, false)
 
         val view = binding.root
@@ -73,19 +65,21 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         startCamera()
         setupListeners()
 
-        val dialog = OfferToAnswerTheQuestionDialogFragment()
-        viewModel.isCanDisplayed.observe(viewLifecycleOwner) {
-            if (it && !dialog.isAdded) {
-                dialog.show(
-                    parentFragmentManager,
-                    "offerToTransfer",
-                    viewModel.testTask.value!!
-
-                ) {
-                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        viewModel.currentTask.observe(viewLifecycleOwner) {
+            if (it != null) {
+                dialog = OfferToAnswerTheQuestionDialogFragment(it) { answer ->
+                    Toast.makeText(requireContext(), answer, Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
+        }
 
+        viewModel.isCanDisplayed.observe(viewLifecycleOwner) {
+            if (it && dialog != null) {
+                if (dialog!!.isAdded) {
+                    dialog!!.show(parentFragmentManager,"offerToTransfer")
+                }
+            }
         }
 
         AppCurrentTasksSingleton.currentTasks.observe(viewLifecycleOwner) {
@@ -93,13 +87,10 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             }
         }
 
-        viewModel.testTask.observe(viewLifecycleOwner){
-
-            testLocation = viewModel.getLocationFromTask(it.task)
-
-
-
-
+        viewModel.currentTask.observe(viewLifecycleOwner){
+            if (it != null) {
+                testLocation = viewModel.getLocationFromTask(it.task)
+            }
         }
 
         return binding.root

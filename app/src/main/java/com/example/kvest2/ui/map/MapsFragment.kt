@@ -37,10 +37,8 @@ class MapsFragment : Fragment() {
     }
     private lateinit var binding: FragmentMapsBinding
 
-    private lateinit var viewModel: MapsViewModel
-
-    private val viewModelQuests: QuestSharedViewModel by activityViewModels {
-        QuestViewModelFactory(binding.root.context)
+    private val viewModel: MapsViewModel by activityViewModels {
+        MapsViewModelFactory(binding.root.context)
     }
 
     override fun onCreateView(
@@ -48,13 +46,13 @@ class MapsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel =  ViewModelProvider(this).get(MapsViewModel::class.java)
-
         binding = FragmentMapsBinding.inflate(inflater, container, false)
 
         AppCurrentTasksSingleton.currentTasks.observe(viewLifecycleOwner) {
-            it.forEach {
-
+            it?.forEach {
+                Toast.makeText(context,
+                    "Точка ${it.task.latitude} ${it.task.longitude}", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
 

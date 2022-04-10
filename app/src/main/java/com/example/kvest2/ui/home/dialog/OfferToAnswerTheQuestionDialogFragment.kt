@@ -15,14 +15,9 @@ import com.example.kvest2.databinding.UserAnswerTaskDialogBinding
 import com.example.kvest2.ui.quest.QuestSharedViewModel
 import com.example.kvest2.ui.quest.QuestViewModelFactory
 
-class OfferToAnswerTheQuestionDialogFragment: DialogFragment() {
+class OfferToAnswerTheQuestionDialogFragment(private val task: TaskAnswerRelated, private val listener: (String) -> Unit): DialogFragment() {
 
     private lateinit var binding: UserAnswerTaskDialogBinding
-
-    private val viewModel: QuestSharedViewModel by activityViewModels {
-        QuestViewModelFactory(binding.root.context)
-
-    }
 
     override fun onCreateView (
         inflater: LayoutInflater,
@@ -35,22 +30,13 @@ class OfferToAnswerTheQuestionDialogFragment: DialogFragment() {
 
         return binding.root
     }
-<<<<<<< Updated upstream
-     fun show(manager: FragmentManager, tag: String?, task: TaskAnswerRelated, listener: (String) -> Unit) {
-
-        //binding.question.text =  task.task.question
-=======
->>>>>>> Stashed changes
-
-
-     fun show(manager: FragmentManager, tag: String?, task: Task, listener: (String) -> Unit) {
-//        binding.question.text =  task.question
-
-        listener("Ответ")
-    }
 
 
     private fun initDialogListeners() = with(binding) {
+        question.text = task.task.question
 
+        dialogBeginBtn.setOnClickListener {
+            listener("Hello work, it's my offer on answer")
+        }
     }
 }
