@@ -91,7 +91,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             }
         }
 
-        return binding.root
+        return view
     }
 
     private var testLocation: Location? = null

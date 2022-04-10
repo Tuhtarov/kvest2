@@ -23,7 +23,7 @@ class MapsViewModelFactory(private val context: Context) : ViewModelProvider.Fac
 
         if (modelClass.isAssignableFrom(MapsViewModel::class.java)) {
             return MapsViewModel (
-                currentUser = AppUserSingleton.getUser()!!,
+                currentUser = AppUserSingleton.user.value!!,
                 questRepository = QuestRepository(questDao, questUserRelatedDao),
                 taskRepository = TaskRepository(taskDao, taskAnswerDao),
             ) as T

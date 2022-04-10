@@ -1,9 +1,11 @@
 package com.example.kvest2.ui
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.Menu
 import android.view.View
 import android.widget.TextView
@@ -13,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -34,43 +37,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var layout: View
     private val REQUEST_PERMISSIONS = 10001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         checkPermissions()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-
         setContentView(binding.root)
 
-        val view = binding.root
-        layout = binding.drawerLayout
+        initHeader()
 
-        val userDao = QuestDatabase.getDatabase(applicationContext).userDao()
-        val userRepository = UserRepository(userDao)
-        val currentUser = AppUserSingleton.getUser()!!
+        val drawerLayout = binding.drawerLayout
+        val navView = binding.navView
 
-        val header = binding.navView.getHeaderView(0)
-
-        header.findViewById<TextView>(R.id.navHeaderTitle).text = currentUser.name
-
-        header.findViewById<TextView>(R.id.exitLink).setOnClickListener {
-            lifecycleScope.launch(Dispatchers.Default) {
-                userRepository.signOutUser(currentUser)
-                AppUserSingleton.clearUser()
-
-                // переходим на страницу авторизации приложения
-                val intent = Intent(applicationContext, LoginActivity::class.java)
-                startActivity(intent)
-            }
-        }
-
-        setSupportActionBar(binding.appBarMain.toolbar)
-
-        val drawerLayout: DrawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+        val navController = navHostFragment.navController
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
@@ -78,9 +59,33 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             ), drawerLayout
         )
 
+        setSupportActionBar(binding.appBarMain.toolbar)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
 
+
+    private fun initHeader() {
+        val header = binding.navView.getHeaderView(0)
+        val headerTitle = header.findViewById<TextView>(R.id.navHeaderTitle)
+        val button = header.findViewById<TextView>(R.id.exitLink)
+
+        val userDao = QuestDatabase.getDatabase(this).userDao()
+        val userRepository = UserRepository(userDao)
+
+        button.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.Default) {
+                userRepository.signOutUser()
+                val intent = Intent(applicationContext, LoginActivity::class.java)
+                startActivity(intent)
+            }
+        }
+
+        AppUserSingleton.user.observe(this) {
+            if (it != null) {
+                headerTitle.text = it.name
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

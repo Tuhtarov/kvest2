@@ -22,7 +22,6 @@ class HomeViewModelFactory(private val context: Context) : ViewModelProvider.Fac
 
             return HomeViewModel (
                 userRepository = UserRepository(userDao),
-                currentUser = AppUserSingleton.getUser()!!,
                 questRepository = QuestRepository(questDao, questUserRelatedDao),
                 taskRepository = TaskRepository(taskDao, taskAnswerDao),
             ) as T

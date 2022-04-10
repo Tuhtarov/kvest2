@@ -2,6 +2,7 @@ package com.example.kvest2.ui.home
 
 import android.hardware.Camera
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,7 @@ import com.example.kvest2.data.entity.Task
 import com.example.kvest2.data.entity.TaskAnswerRelated
 import com.example.kvest2.data.entity.User
 import com.example.kvest2.data.model.AppCurrentTasksSingleton
+import com.example.kvest2.data.model.AppUserSingleton
 import com.example.kvest2.data.repository.QuestRepository
 import com.example.kvest2.data.repository.TaskRepository
 import com.example.kvest2.data.repository.UserRepository
@@ -21,11 +23,9 @@ import kotlin.math.abs
 class HomeViewModel(
     private val userRepository: UserRepository,
     private val questRepository: QuestRepository,
-    private val taskRepository: TaskRepository,
-    private val currentUser: User
+    private val taskRepository: TaskRepository
 ) : ViewModel() {
     /** A safe way to get an instance of the Camera object. */
-
 
     fun getCameraInstance(): Camera? {
         return try {
@@ -61,16 +61,23 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val currentQuest = questRepository.findCurrentQuestByUserId(currentUser.id)
+            val currentUser = userRepository.findLoggedUser().user
 
-            if (currentQuest != null) {
-                val tasks = taskRepository.getAllRelatedByQuestId(currentQuest.quest.id)
+            try {
+                val currentQuest = questRepository.findCurrentQuestByUserId(currentUser!!.id)
+                AppUserSingleton.user.postValue(currentUser)
 
-                AppCurrentTasksSingleton.currentTasks.postValue(tasks)
-                AppCurrentTasksSingleton.currentQuest.postValue(currentQuest)
+                if (currentQuest != null) {
+                    val tasks = taskRepository.getAllRelatedByQuestId(currentQuest.quest.id)
+
+                    AppCurrentTasksSingleton.currentTasks.postValue(tasks)
+                    AppCurrentTasksSingleton.currentQuest.postValue(currentQuest)
+                }
+
+                currentTask.postValue(AppCurrentTasksSingleton.currentTasks.value?.get(0))
+            } catch (e: Exception) {
+                Log.e("error", e.message.toString())
             }
-
-            currentTask.postValue(AppCurrentTasksSingleton.currentTasks.value?.get(0))
         }
     }
 

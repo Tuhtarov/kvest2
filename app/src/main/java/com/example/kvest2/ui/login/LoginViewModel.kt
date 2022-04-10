@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kvest2.R
+import com.example.kvest2.data.model.AppUserSingleton
 import com.example.kvest2.data.model.LoggedUser
 import com.example.kvest2.data.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
@@ -14,14 +15,17 @@ class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _loginFormState = MutableLiveData<LoginFormState>()
     val loginFormState: LiveData<LoginFormState> = _loginFormState
 
-    private val _loggedUser = MutableLiveData<LoggedUser>()
-    val loggedUser: LiveData<LoggedUser> = _loggedUser
+    val loggedUser = MutableLiveData<LoggedUser>()
 
-    fun findCurrentUser() {
+    init {
         viewModelScope.launch(Dispatchers.Default) {
-            val loggedUser = userRepository.findLoggedUser()
+            val userData = userRepository.findLoggedUser()
 
-            _loggedUser.postValue(loggedUser)
+            if (userData.user != null) {
+                AppUserSingleton.user.postValue(userData.user)
+            }
+
+            loggedUser.postValue(userData)
         }
     }
 
@@ -32,15 +36,22 @@ class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
             _loginFormState.value = LoginFormState(isDataValid = true)
     }
 
+    private suspend fun signOut() {
+        userRepository.signOutUser()
+    }
+
     fun signIn(username: String) {
         viewModelScope.launch(Dispatchers.Default) {
+            signOut()
+
             val user = userRepository.findOrCreate(username)
 
             // помечаем пользователя как авторизованного
             user.isLogged = true
+
             userRepository.updateUser(user)
 
-            _loggedUser.postValue(LoggedUser(user = user))
+            loggedUser.postValue(LoggedUser(user = user))
         }
     }
 }

@@ -2,6 +2,7 @@ package com.example.kvest2.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.example.kvest2.data.entity.QuestUser
 import com.example.kvest2.data.entity.User
 
 @Dao
@@ -20,4 +21,7 @@ interface UserDao {
 
     @Update
     suspend fun updateUser(user: User)
+
+    @Query("UPDATE ${User.TABLE_NAME} SET `is_logged` = 0")
+    suspend fun signOutUsers()
 }

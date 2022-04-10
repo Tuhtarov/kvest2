@@ -3,6 +3,7 @@ package com.example.kvest2.data.repository
 import androidx.lifecycle.LiveData
 import com.example.kvest2.data.entity.User
 import com.example.kvest2.data.dao.UserDao
+import com.example.kvest2.data.model.AppUserSingleton
 import com.example.kvest2.data.model.LoggedUser
 
 class UserRepository(private val userDao: UserDao) {
@@ -28,9 +29,8 @@ class UserRepository(private val userDao: UserDao) {
         return LoggedUser()
     }
 
-    suspend fun signOutUser(user: User) {
-        user.isLogged = false
-        userDao.updateUser(user)
+    suspend fun signOutUser() {
+        userDao.signOutUsers()
     }
 
     suspend fun updateUser(user: User) {

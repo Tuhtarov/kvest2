@@ -21,45 +21,39 @@ class LoginFragment : Fragment() {
 
     private lateinit var viewModel: LoginViewModel
 
-    private var _binding: LoginFragmentBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: LoginFragmentBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = LoginFragmentBinding.inflate(inflater, container, false)
+        binding = LoginFragmentBinding.inflate(inflater, container, false)
 
         viewModel = ViewModelProvider(this, LoginViewModelFactory(requireContext()))
             .get(LoginViewModel::class.java)
 
-        val username = binding.username
-        val loginBtn = binding.login
+        binding.apply {
+            username.afterTextChanged {
+                viewModel.loginDataChanged(username.text.toString())
+            }
 
-        username.afterTextChanged {
-            viewModel.loginDataChanged(username.text.toString())
+            // активируем кнопку в случае если вводимые данные корректны
+            viewModel.loginFormState.observe(viewLifecycleOwner) {
+                login.isEnabled = it.isDataValid == true
+            }
+
+            // логинимся по клику на кнопку
+            login.setOnClickListener {
+                viewModel.signIn(username.text.toString())
+            }
         }
-
-        // активируем кнопку в случае если вводимые данные корректны
-        viewModel.loginFormState.observe(viewLifecycleOwner) {
-            loginBtn.isEnabled = it.isDataValid == true
-        }
-
-        // логинимся по клику на кнопку
-        loginBtn.setOnClickListener {
-            viewModel.signIn(username.text.toString())
-        }
-
-        // выполняем поиск текущего пользователя (зарегистрированного)
-        viewModel.findCurrentUser()
 
         // отслеживаем состояние юзера, авторизован или нет
         viewModel.loggedUser.observe(viewLifecycleOwner) {
             if (it.user != null) {
-                AppUserSingleton.setUser(it.user)
-
                 // переходим в главный экран приложения
-                val intent = Intent(requireContext(), MainActivity::class.java)
+                AppUserSingleton.user.value = it.user
+                val intent = Intent(context, MainActivity::class.java)
                 startActivity(intent)
             } else {
                 // отключаем прогресс бар, включаем форму авторизации

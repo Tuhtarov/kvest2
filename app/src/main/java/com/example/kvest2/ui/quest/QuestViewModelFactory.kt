@@ -27,7 +27,7 @@ class QuestViewModelFactory(private val context: Context) : ViewModelProvider.Fa
             val taskAnswerDao = db.taskAnswerRelated()
 
             return QuestSharedViewModel(
-                currentUser = AppUserSingleton.getUser()!!,
+                currentUser = AppUserSingleton.user.value!!,
                 questRepository = QuestRepository(questDao, questUserRelatedDao),
                 questRemoteRepository = QuestRemoteRepository(
                     TaskRemoteRepository(
