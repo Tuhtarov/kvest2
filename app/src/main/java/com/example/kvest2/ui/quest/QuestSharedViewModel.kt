@@ -9,6 +9,7 @@ import com.example.kvest2.data.api.QuestRemoteRepository
 import com.example.kvest2.data.entity.*
 import com.example.kvest2.data.model.ApiFetchResult
 import com.example.kvest2.data.model.ApiResult
+import com.example.kvest2.data.model.AppCurrentTasksSingleton
 import com.example.kvest2.data.model.TaskUserRelatedStore
 import com.example.kvest2.data.repository.*
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +42,6 @@ class QuestSharedViewModel(
 
     val fetchQuestIsLoading = MutableLiveData<Boolean?>(null)
     val apiFetchResult = MutableLiveData<ApiResult>()
-    val currentTasksAnswersRelated = MutableLiveData<MutableList<TaskAnswerRelated>>()
 
     init {
         // инициализируем листы, заполняем данными из БД
@@ -75,6 +75,17 @@ class QuestSharedViewModel(
                 userTasks.postValue(_userTasks)
 
                 taskUserRelatedStore.setUserTasks(_userTasks)
+            }
+
+            launch {
+                val currentQuest = questRepository.findCurrentQuestByUserId(currentUser.id)
+
+                if (currentQuest != null) {
+                    val tasks = taskRepository.getAllRelatedByQuestId(currentQuest.quest.id)
+
+                    AppCurrentTasksSingleton.currentTasks.postValue(tasks)
+                    AppCurrentTasksSingleton.currentQuest.postValue(currentQuest)
+                }
             }
         }
     }
@@ -172,7 +183,6 @@ class QuestSharedViewModel(
 
             if (isCurrent) {
                 val currents = taskRepository.getAllRelatedByQuestId(quest.quest.id)
-                currentTasksAnswersRelated.postValue(currents)
             }
 
             _questUserRelated = questUserRepository.findAllByUserId(quest.questUser.userId)

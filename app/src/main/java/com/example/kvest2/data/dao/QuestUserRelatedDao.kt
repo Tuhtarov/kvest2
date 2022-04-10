@@ -12,4 +12,7 @@ interface QuestUserRelatedDao {
 
     @Query("SELECT DISTINCT * FROM ${QuestUser.TABLE_NAME} WHERE `user_id` = :userId ORDER BY id DESC")
     suspend fun findAllByUserId(userId: Int): MutableList<QuestUserRelated>
+
+    @Query("SELECT DISTINCT * FROM ${QuestUser.TABLE_NAME} WHERE `is_current` = 1 AND `user_id` = :userId ORDER BY id DESC LIMIT 1")
+    suspend fun findCurrentQuestByUserId(userId: Int): QuestUserRelated?
 }

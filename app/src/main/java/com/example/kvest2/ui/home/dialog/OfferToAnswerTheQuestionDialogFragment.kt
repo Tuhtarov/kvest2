@@ -35,10 +35,16 @@ class OfferToAnswerTheQuestionDialogFragment: DialogFragment() {
 
         return binding.root
     }
+<<<<<<< Updated upstream
      fun show(manager: FragmentManager, tag: String?, task: TaskAnswerRelated, listener: (String) -> Unit) {
 
         //binding.question.text =  task.task.question
+=======
+>>>>>>> Stashed changes
 
+
+     fun show(manager: FragmentManager, tag: String?, task: Task, listener: (String) -> Unit) {
+//        binding.question.text =  task.question
 
         listener("Ответ")
     }

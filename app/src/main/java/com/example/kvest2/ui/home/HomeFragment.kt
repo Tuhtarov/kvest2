@@ -17,12 +17,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.kvest2.R
 import com.example.kvest2.data.entity.Task
+import com.example.kvest2.data.model.AppCurrentTasksSingleton
 import com.example.kvest2.databinding.HomeFragmentBinding
 import com.example.kvest2.ui.camera.CameraPreview
 import com.example.kvest2.ui.home.dialog.OfferToAnswerTheQuestionDialogFragment
+import com.example.kvest2.ui.quest.QuestSharedViewModel
+import com.example.kvest2.ui.quest.QuestViewModelFactory
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 
@@ -38,6 +42,9 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
     private lateinit var layout: View
 
+    private val viewModelQuests: QuestSharedViewModel by activityViewModels {
+        QuestViewModelFactory(binding.root.context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,16 +81,25 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                     "offerToTransfer",
                     viewModel.testTask.value!!
 
-                ){
+                ) {
                     Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 }
-
             }
 
         }
+
+        AppCurrentTasksSingleton.currentTasks.observe(viewLifecycleOwner) {
+            it.forEach {
+            }
+        }
+
         viewModel.testTask.observe(viewLifecycleOwner){
+<<<<<<< Updated upstream
             testLocation = viewModel.getLocationFromTask(it.task)
 
+=======
+            testLocation = viewModel.getLocationFromTask(it)
+>>>>>>> Stashed changes
         }
 
         return binding.root
