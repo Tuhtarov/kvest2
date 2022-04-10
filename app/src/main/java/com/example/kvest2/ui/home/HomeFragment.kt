@@ -94,12 +94,12 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
         }
 
         viewModel.testTask.observe(viewLifecycleOwner){
-<<<<<<< Updated upstream
+
             testLocation = viewModel.getLocationFromTask(it.task)
 
-=======
-            testLocation = viewModel.getLocationFromTask(it)
->>>>>>> Stashed changes
+
+
+
         }
 
         return binding.root
@@ -316,7 +316,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                     viewModel.deviceLocation = currentDeviceLocation
 
 
-                    binding.textDistanceToPoint.text = distanceToTask.toString()
+                    binding.distanceToPointInCircle.text = distanceToTask.toString()
                 }
             }
         }
@@ -383,11 +383,18 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             mAzimuthTeoretical = viewModel.calculateTeoreticalAzimuth()
             val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
             val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
+
+            if (viewModel.isBetween(minAngle,maxAngle,mAzimuthReal))
+            {
+                binding.circleWithDistance.visibility = View.VISIBLE
+            }
+            else binding.circleWithDistance.visibility = View.INVISIBLE
+
             if ((viewModel.isBetween(
                     minAngle,
                     maxAngle,
                     mAzimuthReal
-                ))
+                )&& distanceToTask<=DISTANCE_ACCURACY)
             ) {
                 //pointerIcon.setVisibility(View. VISIBLE );
                 binding.textIsPointHitted.text = "Попал!"
