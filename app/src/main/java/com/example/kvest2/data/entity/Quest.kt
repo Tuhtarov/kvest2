@@ -3,7 +3,6 @@ package com.example.kvest2.data.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.annotations.SerializedName
 
 @Entity (
     tableName = Quest.TABLE_NAME,

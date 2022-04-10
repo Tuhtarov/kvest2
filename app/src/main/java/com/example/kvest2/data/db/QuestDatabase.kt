@@ -144,6 +144,8 @@ abstract class QuestDatabase: RoomDatabase() {
 
     abstract fun taskQuestRelated(): TaskQuestRelatedDao
 
+    abstract fun taskAnswerRelated(): TaskAnswerRelatedDao
+
     companion object {
         @Volatile
         private var INSTANCE: QuestDatabase? = null
