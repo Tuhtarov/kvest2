@@ -29,7 +29,6 @@ class OfferToAnswerTheQuestionDialogFragment: DialogFragment() {
     ): View {
         binding = UserAnswerTaskDialogBinding.inflate(inflater, container, false)
 
-
         initDialogListeners()
 
         return binding.root
