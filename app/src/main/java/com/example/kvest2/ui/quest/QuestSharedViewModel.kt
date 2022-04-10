@@ -29,7 +29,6 @@ class QuestSharedViewModel(
     private val answerRepository: AnswerRepository,
     private val taskRepository: TaskRepository
 ) : ViewModel() {
-
     private lateinit var _questsAvailable: MutableList<Quest>
     private lateinit var _questUserRelated: MutableList<QuestUserRelated>
     private lateinit var _userTasks: MutableList<TaskUserRelated>
@@ -42,6 +41,7 @@ class QuestSharedViewModel(
 
     val fetchQuestIsLoading = MutableLiveData<Boolean?>(null)
     val apiFetchResult = MutableLiveData<ApiResult>()
+    val currentTasksAnswersRelated = MutableLiveData<MutableList<TaskAnswerRelated>>()
 
     init {
         // инициализируем листы, заполняем данными из БД
@@ -169,6 +169,11 @@ class QuestSharedViewModel(
 
             // назначаем пользовательский квест как "текущий", и сохраняем в БД
             questUserRepository.setCurrent(quest.questUser, isCurrent)
+
+            if (isCurrent) {
+                val currents = taskRepository.getAllRelatedByQuestId(quest.quest.id)
+                currentTasksAnswersRelated.postValue(currents)
+            }
 
             _questUserRelated = questUserRepository.findAllByUserId(quest.questUser.userId)
 

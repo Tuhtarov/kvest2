@@ -24,6 +24,7 @@ class QuestViewModelFactory(private val context: Context) : ViewModelProvider.Fa
             val taskUserRelatedDao = db.taskUserRelated()
             val taskDao = db.taskDao()
             val answerDao = db.answerDao()
+            val taskAnswerDao = db.taskAnswerRelated()
 
             return QuestSharedViewModel(
                 currentUser = AppUserSingleton.getUser()!!,
@@ -37,7 +38,7 @@ class QuestViewModelFactory(private val context: Context) : ViewModelProvider.Fa
                 taskQuestRepository = TaskQuestRepository(taskQuestRelatedDao),
                 taskUserRepository = TaskUserRepository(taskUserRelatedDao),
                 taskUserRelatedStore = AppTaskUserSingleton,
-                taskRepository = TaskRepository(taskDao),
+                taskRepository = TaskRepository(taskDao, taskAnswerDao),
                 answerRepository = AnswerRepository(answerDao)
             ) as T
         }
