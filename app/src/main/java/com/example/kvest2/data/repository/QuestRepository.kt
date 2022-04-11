@@ -5,8 +5,12 @@ import com.example.kvest2.data.dao.QuestDao
 import com.example.kvest2.data.dao.QuestUserRelatedDao
 import com.example.kvest2.data.entity.Quest
 import com.example.kvest2.data.entity.QuestUserRelated
+import javax.inject.Inject
 
-class QuestRepository(private val questDao: QuestDao, private val questRDao: QuestUserRelatedDao) {
+class QuestRepository @Inject constructor (
+    private val questDao: QuestDao,
+    private val questRDao: QuestUserRelatedDao
+) {
     fun readAll(): LiveData<List<Quest>> {
         return questDao.readAll()
     }

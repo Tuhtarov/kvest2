@@ -5,8 +5,9 @@ import com.example.kvest2.data.dao.QuestUserDao
 import com.example.kvest2.data.dao.QuestUserRelatedDao
 import com.example.kvest2.data.entity.QuestUser
 import com.example.kvest2.data.entity.QuestUserRelated
+import javax.inject.Inject
 
-class QuestUserRepository (
+class QuestUserRepository @Inject constructor (
     private val questUserDao: QuestUserDao,
     private val questUserRelatedDao: QuestUserRelatedDao
 ) {

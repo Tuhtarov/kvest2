@@ -9,4 +9,7 @@ import com.example.kvest2.data.entity.TaskAnswerRelated
 interface TaskAnswerRelatedDao {
     @Query("SELECT * FROM ${Task.TABLE_NAME} WHERE `quest_id` = :questId ORDER BY id ASC")
     suspend fun readAllByQuestId(questId: Int): MutableList<TaskAnswerRelated>
+
+    @Query("SELECT * FROM ${Task.TABLE_NAME} WHERE `id` = :id")
+    suspend fun findById(id: Int): List<TaskAnswerRelated>
 }

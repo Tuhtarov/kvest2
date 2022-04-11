@@ -1,18 +1,15 @@
 package com.example.kvest2.ui
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.AttributeSet
 import android.view.Menu
-import android.view.View
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -22,20 +19,22 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.kvest2.R
 import com.example.kvest2.data.db.QuestDatabase
-import com.example.kvest2.data.model.AppUserSingleton
 import com.example.kvest2.data.repository.UserRepository
 import com.example.kvest2.databinding.ActivityMainBinding
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+
+    val viewModel: MainActivityViewModel by viewModels {
+        MainActivityViewModelFactory(context = binding.root.context)
+    }
 
     private val REQUEST_PERMISSIONS = 10001
 
@@ -44,13 +43,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         initHeader()
 
         val drawerLayout = binding.drawerLayout
         val navView = binding.navView
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+
         val navController = navHostFragment.navController
 
         appBarConfiguration = AppBarConfiguration(
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        AppUserSingleton.user.observe(this) {
+        viewModel.loggedUser.observe(this) {
             if (it != null) {
                 headerTitle.text = it.name
             }

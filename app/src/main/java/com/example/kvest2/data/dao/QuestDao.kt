@@ -24,7 +24,7 @@ interface QuestDao {
     @Query("SELECT * FROM ${Quest.TABLE_NAME} WHERE `id` = :id")
     fun findById(id: Int): Quest?
 
-    @Query("SELECT q.* FROM quest AS q" +
+    @Query("SELECT DISTINCT q.* FROM quest AS q" +
             " LEFT OUTER JOIN quest_user AS qu ON qu.quest_id = q.id" +
             " WHERE q.id NOT IN (SELECT quest_id FROM quest_user WHERE user_id = :userId)")
     suspend fun findAvailableByUserId(userId: Int): MutableList<Quest>

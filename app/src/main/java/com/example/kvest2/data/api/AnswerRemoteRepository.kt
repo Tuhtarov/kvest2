@@ -1,8 +1,9 @@
 package com.example.kvest2.data.api
 
 import com.example.kvest2.data.entity.Answer
+import javax.inject.Inject
 
-class AnswerRemoteRepository {
+class AnswerRemoteRepository @Inject constructor() {
     fun getAnswersFromTaskListApi(questsApi: List<QuestApi>): List<Answer> {
         val answers = mutableListOf<Answer>()
 

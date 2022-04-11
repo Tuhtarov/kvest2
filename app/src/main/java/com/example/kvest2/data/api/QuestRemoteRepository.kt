@@ -2,8 +2,9 @@ package com.example.kvest2.data.api
 
 import com.example.kvest2.data.entity.Quest
 import retrofit2.Response
+import javax.inject.Inject
 
-class QuestRemoteRepository (val taskRemoteRepository: TaskRemoteRepository) {
+class QuestRemoteRepository @Inject constructor() {
     suspend fun getQuests(): Response<MutableList<QuestApi>> {
         return RetrofitInstance.api.getQuests()
     }

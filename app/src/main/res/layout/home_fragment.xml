@@ -2,138 +2,213 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:id="@+id/frame_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment"
-    android:id="@+id/frame_layout">
+    tools:context=".ui.home.HomeFragment">
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/cameraPreview"
-        android:layout_width="379dp"
-        android:layout_height="552dp"
+        <FrameLayout
+            android:id="@+id/cameraPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-
-    </FrameLayout>
-
-    <RelativeLayout
-        android:id="@+id/circleWithDistance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/cameraPreview"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/cameraPreview"
-        android:visibility="invisible">
-
-        <ImageView
-            android:id="@+id/pointCircle"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@drawable/point_circle"
-            android:visibility="visible">
-
-        </ImageView>
-
-        <TextView
-            android:id="@+id/distanceToPointInCircle"
+        <RelativeLayout
+            android:id="@+id/circleWithDistance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/pointCircle"
-            android:layout_alignTop="@+id/pointCircle"
-            android:layout_alignRight="@+id/pointCircle"
-            android:layout_alignBottom="@+id/pointCircle"
-            android:layout_marginStart="1dp"
-            android:layout_marginTop="1dp"
-            android:layout_marginEnd="1dp"
-            android:layout_marginBottom="1dp"
-            android:gravity="center"
-            android:text="Text"
-            android:textColor="@color/black" />
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/cameraPreview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/cameraPreview">
 
+            <ImageView
+                android:id="@+id/pointCircle"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@drawable/point_circle"
+                android:visibility="visible">
+            </ImageView>
 
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/distanceToPointInCircle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/pointCircle"
+                android:layout_alignTop="@+id/pointCircle"
+                android:layout_alignEnd="@+id/pointCircle"
+                android:layout_alignBottom="@+id/pointCircle"
+                android:layout_marginStart="1dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="1dp"
+                android:layout_marginBottom="1dp"
+                android:gravity="center"
+                android:text="Text"
+                android:textColor="@color/black" />
+        </RelativeLayout>
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnShowCurrentTasks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:elevation="10dp"
+            android:src="@drawable/ic_baseline_format_list_bulleted_32"
+            android:layout_gravity="end|bottom"
+            app:layout_constraintBottom_toTopOf="@+id/card_containers"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:backgroundTint="@color/white"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="10dp"
+            android:contentDescription="@string/show_list_current_tasks" />
 
-    <TextView
-        android:id="@+id/textLongitude"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="16dp"
-        android:text="Longitude"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cameraPreview"
-        app:layout_constraintVertical_bias="0.0" />
+        <LinearLayout
+            android:id="@+id/card_containers"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="25dp"
+            android:layout_marginHorizontal="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/textLatitude"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="64dp"
-        android:text="Latitude"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cameraPreview"
-        app:layout_constraintVertical_bias="0.0" />
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_geo_data"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="@color/white"
+                android:elevation="15dp"
+                app:cardCornerRadius="10dp">
 
-    <TextView
-        android:id="@+id/textDistanceToPoint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="280dp"
-        android:text="DistanceTo"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textLongitude" />
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:columnCount="2"
+                    android:rowCount="1"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/activity_vertical_margin"
+                    android:paddingEnd="@dimen/activity_horizontal_margin"
+                    android:paddingBottom="@dimen/activity_vertical_margin">
 
-    <TextView
-        android:id="@+id/textCurrentAzimuth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="CurrentAzimuth"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textDistanceToPoint" />
+                    <LinearLayout
+                        android:layout_columnSpan="1"
+                        android:layout_gravity="fill"
+                        android:minWidth="160dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textTargetAzimuth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="TargetAzimuth"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textCurrentAzimuth" />
+                        <TextView
+                            android:id="@+id/textLongitude"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Longitude" />
 
-    <TextView
-        android:id="@+id/textIsPointHitted"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="52dp"
-        android:text="Попал?"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textLatitude" />
+                        <TextView
+                            android:id="@+id/textLatitude"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="Latitude" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                        <TextView
+                            android:id="@+id/textDistanceToPoint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="DistanceTo" />
+                    </LinearLayout>
 
+                    <LinearLayout
+                        android:layout_columnSpan="1"
+                        android:layout_gravity="fill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
+                        <TextView
+                            android:id="@+id/textCurrentAzimuth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="CurrentAzimuth" />
 
+                        <TextView
+                            android:id="@+id/textTargetAzimuth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="TargetAzimuth" />
+
+                        <TextView
+                            android:id="@+id/textIsPointHitted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="Попал?" />
+                    </LinearLayout>
+                </GridLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_task_not_exist"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="@color/white"
+                android:visibility="gone"
+                android:elevation="15dp"
+                app:cardCornerRadius="10dp">
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:columnCount="2"
+                    android:rowCount="1"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/activity_vertical_margin"
+                    android:paddingEnd="@dimen/activity_horizontal_margin"
+                    android:paddingBottom="@dimen/activity_vertical_margin">
+
+                    <LinearLayout
+                        android:layout_columnSpan="1"
+                        android:layout_gravity="fill"
+                        android:minWidth="120dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:text="@string/warn" />
+
+                        <TextView
+                            android:id="@+id/warn_message"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:text="@string/tasks_is_empty_warn_message" />
+
+                    </LinearLayout>
+                </GridLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

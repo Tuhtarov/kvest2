@@ -1,34 +1,50 @@
 package com.example.kvest2.ui.quest
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kvest2.appComponent
+import com.example.kvest2.data.api.AnswerRemoteRepository
 import com.example.kvest2.data.api.QuestApi
 import com.example.kvest2.data.api.QuestRemoteRepository
-import com.example.kvest2.data.entity.*
+import com.example.kvest2.data.api.TaskRemoteRepository
+import com.example.kvest2.data.entity.Quest
+import com.example.kvest2.data.entity.QuestUser
+import com.example.kvest2.data.entity.QuestUserRelated
+import com.example.kvest2.data.entity.User
 import com.example.kvest2.data.model.ApiFetchResult
 import com.example.kvest2.data.model.ApiResult
 import com.example.kvest2.data.model.AppCurrentTasksSingleton
-import com.example.kvest2.data.model.TaskUserRelatedStore
-import com.example.kvest2.data.repository.*
+import com.example.kvest2.data.repository.AnswerRepository
+import com.example.kvest2.data.repository.QuestRepository
+import com.example.kvest2.data.repository.QuestUserRepository
+import com.example.kvest2.data.repository.TaskRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * ViewModel для фрагментов списка пользовательских квестов
  * и для добавления квеста (Quest) в пользовательские квесты (QuestUser)
  */
-class QuestSharedViewModel(
-    private val currentUser: User,
-    private val questRepository: QuestRepository,
-    private val questUserRepository: QuestUserRepository,
-    private val taskUserRepository: TaskUserRepository,
-    private val taskQuestRepository: TaskQuestRepository,
-    private val taskUserRelatedStore: TaskUserRelatedStore,
-    private val questRemoteRepository: QuestRemoteRepository,
-    private val answerRepository: AnswerRepository,
-    private val taskRepository: TaskRepository
-) : ViewModel() {
+class QuestSharedViewModel(context: Context, val currentUser: User) : ViewModel() {
+    @Inject
+    lateinit var taskRemoteRepository: TaskRemoteRepository
+    @Inject
+    lateinit var questRemoteRepository: QuestRemoteRepository
+    @Inject
+    lateinit var answerRemoteRepository: AnswerRemoteRepository
+    @Inject
+    lateinit var questRepository: QuestRepository
+    @Inject
+    lateinit var questUserRepository: QuestUserRepository
+    @Inject
+    lateinit var taskRepository: TaskRepository
+    @Inject
+    lateinit var answerRepository: AnswerRepository
+
     private lateinit var _questsAvailable: MutableList<Quest>
     private lateinit var _questUserRelated: MutableList<QuestUserRelated>
 
@@ -39,6 +55,8 @@ class QuestSharedViewModel(
     val apiFetchResult = MutableLiveData<ApiResult>()
 
     init {
+        context.applicationContext.appComponent.inject(this)
+
         // инициализируем листы, заполняем данными из БД
         viewModelScope.launch(Dispatchers.IO) {
             // получаем доступные квесты для добавления текущим пользователем
@@ -48,17 +66,10 @@ class QuestSharedViewModel(
                 .invokeOnCompletion {
                     launch {
                         getAvailableQuests()
+                        loadQuestsForCurrentUser()
+                        findCurrentTasks()
                     }
                 }
-
-            // получаем пользовательские квесты для прохождения заданий
-            launch {
-                loadQuestsForCurrentUser()
-            }
-
-            launch {
-                findCurrentTasks()
-            }
         }
     }
 
@@ -68,13 +79,18 @@ class QuestSharedViewModel(
     }
 
     private suspend fun findCurrentTasks() {
-        val quest = questRepository.findCurrentQuestByUserId(currentUser.id)
+        val questUser = questRepository.findCurrentQuestByUserId(currentUser.id)
 
-        val tasks = if (quest != null)
-            taskRepository.getAllRelatedByQuestId(quest.quest.id) else null
+        if (questUser != null) {
+            val tasks = taskRepository.getAllRelatedByQuestId(questUser.quest.id)
+            AppCurrentTasksSingleton.currentTasks.postValue(tasks)
+            AppCurrentTasksSingleton.currentQuest.postValue(questUser.quest)
+        } else {
+            AppCurrentTasksSingleton.currentTasks.postValue(null)
+            AppCurrentTasksSingleton.currentQuest.postValue(null)
 
-        AppCurrentTasksSingleton.currentTasks.postValue(tasks)
-        AppCurrentTasksSingleton.currentQuest.postValue(quest)
+            Log.e("current-tasks", "нет текущего квеста")
+        }
     }
 
     private suspend fun fetchQuestsFromApi() {
@@ -104,12 +120,9 @@ class QuestSharedViewModel(
 
         val fetchedQuests = questRemoteRepository.getQuestsFromQuestsListApi(questsApi)
 
-        val fetchedTasks =
-            questRemoteRepository.taskRemoteRepository.getTasksFromQuestListApi(questsApi)
+        val fetchedTasks = taskRemoteRepository.getTasksFromQuestListApi(questsApi)
 
-        val fetchedAnswers =
-            questRemoteRepository.taskRemoteRepository.answerRemoteRepository
-                .getAnswersFromTaskListApi(questsApi)
+        val fetchedAnswers = answerRemoteRepository.getAnswersFromTaskListApi(questsApi)
 
         questRepository.insertQuests(fetchedQuests)
         answerRepository.insertAnswers(fetchedAnswers)

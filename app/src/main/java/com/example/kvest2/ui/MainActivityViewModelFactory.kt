@@ -1,15 +1,16 @@
-package com.example.kvest2.ui.home
+package com.example.kvest2.ui
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class HomeViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class MainActivityViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            return HomeViewModel (context) as T
+        if (modelClass.isAssignableFrom(MainActivityViewModel::class.java)) {
+            return MainActivityViewModel (context = context) as T
         }
+
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

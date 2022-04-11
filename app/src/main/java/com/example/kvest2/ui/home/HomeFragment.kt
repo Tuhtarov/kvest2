@@ -11,23 +11,32 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.kvest2.R
+import com.example.kvest2.data.entity.Quest
+import com.example.kvest2.data.entity.TaskAnswerRelated
+import com.example.kvest2.data.entity.TaskUserRelated
 import com.example.kvest2.data.model.AppCurrentTasksSingleton
+import com.example.kvest2.data.model.AppUserSingleton
 import com.example.kvest2.databinding.HomeFragmentBinding
 import com.example.kvest2.ui.camera.CameraPreview
 import com.example.kvest2.ui.home.dialog.OfferToAnswerTheQuestionDialogFragment
+import com.example.kvest2.ui.task.dialog.ChooseTaskDialogFragment
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
+import okhttp3.internal.immutableListOf
 
 class HomeFragment : Fragment(), OnAzimuthChangedListener {
-
     companion object {
         fun newInstance() = HomeFragment()
     }
@@ -37,39 +46,47 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
     }
 
     private lateinit var binding: HomeFragmentBinding
-
     private lateinit var layout: View
-
-    var dialog: OfferToAnswerTheQuestionDialogFragment? = null
+    private lateinit var chooseTask: ChooseTaskDialogFragment
+    private var dialog: OfferToAnswerTheQuestionDialogFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = HomeFragmentBinding.inflate(inflater, container, false)
-
-        val view = binding.root
         layout = binding.frameLayout
-        // in onCreate() initialize FusedLocationProviderClient
 
-        onRequestLocationPermissions(view)
+        onRequestLocationPermissions(binding.root)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         getLocationUpdates()
 
-
-        onRequestCameraPermission(view)
+        onRequestCameraPermission(binding.root)
 
         startCamera()
         setupListeners()
+        initObservers()
 
-        viewModel.currentTask.observe(viewLifecycleOwner) {
+        handleCurrentTasks(AppCurrentTasksSingleton.currentTasks.value)
+
+        return binding.root
+    }
+
+    private fun initObservers() = with(binding) {
+        AppCurrentTasksSingleton.currentTask.observe(viewLifecycleOwner) {
             if (it != null) {
                 dialog = OfferToAnswerTheQuestionDialogFragment(it) { answer ->
                     Toast.makeText(requireContext(), answer, Toast.LENGTH_SHORT)
                         .show()
                 }
+
+                testLocation = viewModel.getLocationFromTask(it.task)
             }
+        }
+
+        AppCurrentTasksSingleton.currentTasks.observe(viewLifecycleOwner) {
+            handleCurrentTasks(it)
         }
 
         viewModel.isCanDisplayed.observe(viewLifecycleOwner) {
@@ -79,19 +96,51 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                 }
             }
         }
+    }
 
-        AppCurrentTasksSingleton.currentTasks.observe(viewLifecycleOwner) {
-            it.forEach {
+    private fun handleCurrentTasks(tasksAnswers: List<TaskAnswerRelated>?) {
+        if (tasksAnswers == null || tasksAnswers.isEmpty()) {
+            binding.apply {
+                cardGeoData.visibility = CardView.GONE
+                btnShowCurrentTasks.visibility = Button.GONE
+                cardTaskNotExist.visibility = CardView.VISIBLE
             }
+
+            return
         }
 
-        viewModel.currentTask.observe(viewLifecycleOwner) {
-            if (it != null) {
-                testLocation = viewModel.getLocationFromTask(it.task)
-            }
+        val quest = AppCurrentTasksSingleton.currentQuest.value!!
+
+        binding.apply {
+            btnShowCurrentTasks.visibility = Button.VISIBLE
+            cardGeoData.visibility = CardView.VISIBLE
+            cardTaskNotExist.visibility = CardView.GONE
         }
 
-        return view
+        AppCurrentTasksSingleton.currentTasksUser.observe(viewLifecycleOwner) { tasksUsers ->
+            if (tasksUsers != null) {
+                initChooseTaskDialog(quest, tasksUsers, tasksAnswers)
+            } else {
+                Log.e("current-tasks-users", "Список пользовательских задач null")
+                val emptyTasksUsersList = mutableListOf<TaskUserRelated>()
+                initChooseTaskDialog(quest, emptyTasksUsersList, tasksAnswers)
+            }
+        }
+    }
+
+    private fun initChooseTaskDialog(
+        quest: Quest,
+        tasksUsers: MutableList<TaskUserRelated>,
+        tasksAnswers: List<TaskAnswerRelated>
+    ) {
+        chooseTask = ChooseTaskDialogFragment(quest, tasksUsers, tasksAnswers) {
+            viewModel.saveTaskHowCurrent(it.task)
+            AppCurrentTasksSingleton.currentTask.value = it
+        }
+
+        Log.i("current-tasks-dialog", "Проинициализировано диалоговое окно " +
+                "квест ${quest.name}, пользовательские задачи ${tasksUsers.size}, " +
+                "все задачи ${tasksAnswers.size}")
     }
 
     private var testLocation: Location? = null
@@ -102,6 +151,10 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
     /*метод setupListeners служит для инициализации слушателей местоположения и азимута - здесь
     мы вызываем конструкторы классов MyCurrentLocation и MyCurrentAzimuth и выполняем их методы start*/
     private fun setupListeners() {
+        binding.btnShowCurrentTasks.setOnClickListener {
+            chooseTask.show(parentFragmentManager, "choose-task")
+        }
+
         myCurrentAzimuth = MyCurrentAzimuth(this, requireContext())
         myCurrentAzimuth.start()
     }
@@ -209,12 +262,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                 requireContext(),
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED -> {
-                layout.showSnackbar(
-                    view,
-                    getString(R.string.camera_permission_granted),
-                    Snackbar.LENGTH_SHORT,
-                    null
-                ) {}
+                Log.d("VLAD-INFO", getString(R.string.camera_permission_granted))
             }
             ActivityCompat.shouldShowRequestPermissionRationale(
                 requireActivity(),
@@ -235,7 +283,6 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                 requestPermissionLauncher.launch(
                     Manifest.permission.CAMERA
                 )
-
             }
         }
     }
@@ -326,13 +373,6 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return
         }
         fusedLocationClient.requestLocationUpdates(
@@ -384,19 +424,23 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
             if (viewModel.isBetween(minAngle, maxAngle, mAzimuthReal)) {
                 //TODO видищь говнокодище? надо исправить....
-                binding.circleWithDistance.visibility = View.VISIBLE
-                var task = AppCurrentTasksSingleton.currentTasks.value?.get(0)
-                var location2 = Location("aaa")
-                location2.latitude = task?.task?.latitude?.toDoubleOrNull()!!
-                location2.longitude = task?.task?.longitude?.toDoubleOrNull()!!
-                distanceToTask = viewModel.getDistanceToTask(location2, currentDeviceLocation)
-                binding.distanceToPointInCircle.text = distanceToTask.toString()
+                if (AppCurrentTasksSingleton.taskIsAvailable()) {
+                    binding.circleWithDistance.visibility = View.VISIBLE
+                    val task = AppCurrentTasksSingleton.getTask()
 
+                    val location2 = Location("aaa")
+                    location2.latitude = task.task.latitude.toDoubleOrNull()!!
+                    location2.longitude = task.task.longitude.toDoubleOrNull()!!
+
+                    distanceToTask = viewModel.getDistanceToTask(location2, currentDeviceLocation)
+                    binding.distanceToPointInCircle.text = distanceToTask.toString()
+                } else {
+                    val task = AppCurrentTasksSingleton.currentTask.value
+                }
             } else {
                 binding.circleWithDistance.visibility = View.INVISIBLE
                 distanceToTask = 0f
             }
-
 
             if ((viewModel.isBetween(
                     minAngle,

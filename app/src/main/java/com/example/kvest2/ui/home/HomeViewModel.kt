@@ -1,32 +1,41 @@
 package com.example.kvest2.ui.home
 
+import android.content.Context
 import android.hardware.Camera
 import android.location.Location
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kvest2.data.entity.Answer
+import com.example.kvest2.appComponent
 import com.example.kvest2.data.entity.Task
 import com.example.kvest2.data.entity.TaskAnswerRelated
-import com.example.kvest2.data.entity.User
+import com.example.kvest2.data.entity.TaskUserRelated
 import com.example.kvest2.data.model.AppCurrentTasksSingleton
 import com.example.kvest2.data.model.AppUserSingleton
-import com.example.kvest2.data.repository.QuestRepository
 import com.example.kvest2.data.repository.TaskRepository
-import com.example.kvest2.data.repository.UserRepository
-import kotlinx.coroutines.Dispatchers
+import com.example.kvest2.data.repository.TaskUserRepository
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.math.abs
 
 
-class HomeViewModel(
-    private val userRepository: UserRepository,
-    private val questRepository: QuestRepository,
-    private val taskRepository: TaskRepository
-) : ViewModel() {
-    /** A safe way to get an instance of the Camera object. */
+class HomeViewModel(context: Context) : ViewModel() {
+    @Inject
+    lateinit var taskRepository: TaskRepository
 
+    @Inject
+    lateinit var taskUserRepository: TaskUserRepository
+
+    var currentTasksUser: MutableLiveData<MutableList<TaskUserRelated>>
+
+    init {
+        context.applicationContext.appComponent.inject(this)
+        currentTasksUser = MutableLiveData(mutableListOf())
+    }
+
+    /** A safe way to get an instance of the Camera object. */
     fun getCameraInstance(): Camera? {
         return try {
             Camera.open() // attempt to get a Camera instance
@@ -51,42 +60,14 @@ class HomeViewModel(
         return userLocation.distanceTo(taskLocation)
     }
 
-    lateinit var taskLocation: Location
-    lateinit var deviceLocation:Location
-    init {
-        taskLocation = Location("test")
-        deviceLocation = Location("test2")
-    }
-    val currentTask : MutableLiveData<TaskAnswerRelated> = MutableLiveData<TaskAnswerRelated>()
+    var taskLocation: Location = Location("test")
+    var deviceLocation: Location = Location("test2")
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val currentUser = userRepository.findLoggedUser().user
-
-            try {
-                val currentQuest = questRepository.findCurrentQuestByUserId(currentUser!!.id)
-                AppUserSingleton.user.postValue(currentUser)
-
-                if (currentQuest != null) {
-                    val tasks = taskRepository.getAllRelatedByQuestId(currentQuest.quest.id)
-
-                    AppCurrentTasksSingleton.currentTasks.postValue(tasks)
-                    AppCurrentTasksSingleton.currentQuest.postValue(currentQuest)
-                }
-
-                currentTask.postValue(AppCurrentTasksSingleton.currentTasks.value?.get(0))
-            } catch (e: Exception) {
-                Log.e("error", e.message.toString())
-            }
-        }
-    }
-
-    fun getLocationFromTask(task:Task) : Location?
-    {
+    fun getLocationFromTask(task: Task): Location? {
         val longitude = task.longitude.toDoubleOrNull()
         val latitude = task.latitude.toDoubleOrNull()
 
-        if(longitude == null && latitude == null) {
+        if (longitude == null && latitude == null) {
             return null
         } else {
             val location = Location("aboba")
@@ -95,6 +76,7 @@ class HomeViewModel(
             return location
         }
     }
+
     /*вычисляем теоретический азимут по формуле, о которой я говорил в начале урока.
     Вычисление азимута для разных четвертей производим на основе таблицы. */
     fun calculateTeoreticalAzimuth(): Double {
@@ -119,7 +101,7 @@ class HomeViewModel(
 
 
     //расчитываем точность азимута, необходимую для отображения покемона
-     fun calculateAzimuthAccuracy(azimuth: Double): List<Double>? {
+    fun calculateAzimuthAccuracy(azimuth: Double): List<Double>? {
         var minAngle: Double = azimuth - AZIMUTH_ACCURACY
         var maxAngle: Double = azimuth + AZIMUTH_ACCURACY
         val minMax: MutableList<Double> = ArrayList()
@@ -132,7 +114,7 @@ class HomeViewModel(
     }
 
     //Метод isBetween определяет, находится ли азимут в целевом диапазоне с учетом допустимых отклонений
-     fun isBetween(minAngle: Double, maxAngle: Double, azimuth: Double): Boolean {
+    fun isBetween(minAngle: Double, maxAngle: Double, azimuth: Double): Boolean {
         if (minAngle > maxAngle) {
             if (isBetween(0.0, maxAngle, azimuth) && isBetween(
                     minAngle,
@@ -146,6 +128,19 @@ class HomeViewModel(
         return false
     }
 
+    fun saveTaskHowCurrent(it: Task) {
+        val user = AppUserSingleton.user.value!!
+        val quest = AppCurrentTasksSingleton.currentQuest.value!!
 
+        viewModelScope.launch {
+            taskRepository.clearCurrentTasks(user)
+            taskRepository.saveToTaskUser(it, user, true)
 
+            val currentTasks = taskRepository.getAllRelatedByQuestId(quest.id)
+            val currentUserTasks = taskUserRepository.readCurrentByUserAndQuest(user, quest)
+
+            AppCurrentTasksSingleton.currentTasks.postValue(currentTasks)
+            AppCurrentTasksSingleton.currentTasksUser.postValue(currentUserTasks)
+        }
+    }
 }

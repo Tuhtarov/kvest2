@@ -8,6 +8,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.kvest2.data.dao.*
 import com.example.kvest2.data.entity.*
+import dagger.Provides
+import javax.inject.Inject
 
 val recreateUserTable = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
@@ -111,6 +113,12 @@ val addCascadeOnDeleteAndUpdateToTask = object : Migration(5, 6) {
     }
 }
 
+val addIsCurrentToTask = object : Migration(6, 7) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE ${TaskUser.TABLE_NAME} ADD is_current INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
 
 @Database (
     entities = [
@@ -121,7 +129,7 @@ val addCascadeOnDeleteAndUpdateToTask = object : Migration(5, 6) {
         TaskUser::class,
         QuestUser::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class QuestDatabase: RoomDatabase() {
@@ -146,6 +154,8 @@ abstract class QuestDatabase: RoomDatabase() {
 
     abstract fun taskAnswerRelated(): TaskAnswerRelatedDao
 
+    abstract fun taskUserDao(): TaskUserDao
+
     companion object {
         @Volatile
         private var INSTANCE: QuestDatabase? = null
@@ -156,19 +166,19 @@ abstract class QuestDatabase: RoomDatabase() {
                 return tempInstance
             }
             synchronized(this) {
-                val instance = Room.databaseBuilder(
+                val instance = Room.databaseBuilder (
                     context.applicationContext,
                     QuestDatabase::class.java,
                     "quest_database"
                 )
-                    .addMigrations(
+                    .addMigrations (
                         recreateUserTable,
                         addColumnIsLoggedToUserTable,
                         addNewColumns,
                         addNewIndexes,
-                        addCascadeOnDeleteAndUpdateToTask
-                    )
-                    .build()
+                        addCascadeOnDeleteAndUpdateToTask,
+                        addIsCurrentToTask
+                    ).build()
 
                 INSTANCE = instance
                 return instance

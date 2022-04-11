@@ -31,7 +31,10 @@ data class TaskUser (
     val task_id: Int,
 
     @ColumnInfo(name = "is_answered", defaultValue = "0")
-    val isAnswered: Boolean = false
+    val isAnswered: Boolean = false,
+
+    @ColumnInfo(name = "is_current", defaultValue = "0")
+    val isCurrent: Boolean = false
 ) {
     companion object {
         const val TABLE_NAME = "task_user"

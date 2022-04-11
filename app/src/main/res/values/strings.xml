@@ -74,4 +74,8 @@
     <string name="location_permission_granted">Разрешение на геопозицию дано</string>
     <string name="ok">OK</string>
     <string name="add_quest">Добавление квеста</string>
+    <string name="show_list_current_tasks">Показать список текущих задач</string>
+    <string name="tasks_is_empty_warn_message">Отсутствуют задачи, выберите другой квест</string>
+    <string name="warn">Предупреждение</string>
+    <string name="btn_close_text">Закрыть</string>
 </resources>

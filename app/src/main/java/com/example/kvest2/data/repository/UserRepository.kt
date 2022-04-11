@@ -1,12 +1,14 @@
 package com.example.kvest2.data.repository
 
 import androidx.lifecycle.LiveData
-import com.example.kvest2.data.entity.User
 import com.example.kvest2.data.dao.UserDao
-import com.example.kvest2.data.model.AppUserSingleton
+import com.example.kvest2.data.entity.User
 import com.example.kvest2.data.model.LoggedUser
+import javax.inject.Inject
 
-class UserRepository(private val userDao: UserDao) {
+class UserRepository @Inject constructor (
+    private val userDao: UserDao
+) {
     val readAll: LiveData<List<User>> = userDao.readAll()
 
     private fun addUser(user: User) {
