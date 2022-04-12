@@ -323,7 +323,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
      * call this method in onCreate
      * onLocationResult call when location is changed
      */
-    lateinit var currentDeviceLocation: Location
+     var currentDeviceLocation: Location = Location("currDevLoc")
     private fun getLocationUpdates() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationRequest = LocationRequest()
@@ -449,7 +449,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                     minAngle,
                     maxAngle,
                     mAzimuthReal
-                ) && distanceToTask <= DISTANCE_ACCURACY)
+                ) )
             ) {
                 //pointerIcon.setVisibility(View. VISIBLE );
                 binding.textIsPointHitted.text = "Попал!"
