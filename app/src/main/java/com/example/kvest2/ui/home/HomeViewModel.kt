@@ -79,9 +79,9 @@ class HomeViewModel(context: Context) : ViewModel() {
 
     /*вычисляем теоретический азимут по формуле, о которой я говорил в начале урока.
     Вычисление азимута для разных четвертей производим на основе таблицы. */
-    fun calculateTeoreticalAzimuth(): Double {
-        val dX: Double = taskLocation.latitude - deviceLocation.latitude
-        val dY: Double = taskLocation.longitude - deviceLocation.longitude
+    fun calculateTeoreticalAzimuth(location: Location): Double {
+        val dX: Double = location.latitude - deviceLocation.latitude
+        val dY: Double = location.longitude - deviceLocation.longitude
         var phiAngle: Double
         var azimuth = 0.0
         val tanPhi: Double = abs(dY / dX)

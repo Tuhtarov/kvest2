@@ -82,6 +82,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                 }
 
                 testLocation = viewModel.getLocationFromTask(it.task)
+                if (viewModel.getLocationFromTask(it.task) != null) azimuthToTask = viewModel.calculateTeoreticalAzimuth(viewModel.getLocationFromTask(it.task)!!)
             }
         }
 
@@ -144,7 +145,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
     }
 
     private var testLocation: Location? = null
-
+    private var azimuthToTask : Double? = null
 
     lateinit var myCurrentAzimuth: MyCurrentAzimuth
 
@@ -417,8 +418,8 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
     var mAzimuthReal: Double = 0.0
     override fun onAzimuthChanged(azimuth: Double) {
         mAzimuthReal = azimuth
-        if (!mAzimuthReal.isNaN()) {
-            mAzimuthTeoretical = viewModel.calculateTeoreticalAzimuth()
+        if (!mAzimuthReal.isNaN() && azimuthToTask!=null) {
+            mAzimuthTeoretical = azimuthToTask!!
             val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
             val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
 
