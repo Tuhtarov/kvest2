@@ -23,6 +23,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.kvest2.R
 import com.example.kvest2.data.entity.Quest
+import com.example.kvest2.data.entity.Task
 import com.example.kvest2.data.entity.TaskAnswerRelated
 import com.example.kvest2.data.entity.TaskUserRelated
 import com.example.kvest2.data.model.AppCurrentTasksSingleton
@@ -72,7 +73,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
 
         return binding.root
     }
-
+    private var currentTask: Task? = null
     private fun initObservers() = with(binding) {
         AppCurrentTasksSingleton.currentTask.observe(viewLifecycleOwner) {
             if (it != null) {
@@ -82,6 +83,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
                 }
 
                 testLocation = viewModel.getLocationFromTask(it.task)
+                currentTask = it.task
                 if (viewModel.getLocationFromTask(it.task) != null) azimuthToTask = viewModel.calculateTeoreticalAzimuth(viewModel.getLocationFromTask(it.task)!!)
             }
         }
@@ -418,8 +420,8 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
     var mAzimuthReal: Double = 0.0
     override fun onAzimuthChanged(azimuth: Double) {
         mAzimuthReal = azimuth
-        if (!mAzimuthReal.isNaN() && azimuthToTask!=null) {
-            mAzimuthTeoretical = azimuthToTask!!
+        if (!mAzimuthReal.isNaN() && azimuthToTask!=null && testLocation!=null) {
+            mAzimuthTeoretical = viewModel.calculateTeoreticalAzimuth(testLocation!!)
             val minAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![0]
             val maxAngle = viewModel.calculateAzimuthAccuracy(mAzimuthTeoretical)!![1]
 
@@ -451,7 +453,7 @@ class HomeFragment : Fragment(), OnAzimuthChangedListener {
             ) {
                 //pointerIcon.setVisibility(View. VISIBLE );
                 binding.textIsPointHitted.text = "Попал!"
-                binding.textDistanceToPoint.visibility = View.VISIBLE
+                //binding.textDistanceToPoint.visibility = View.VISIBLE
 
                 //TODO вывод модалки для начала ответа (приостановить camera preview, получение геопозиции, изменения азимута)
                 viewModel.isCanDisplayed.value = true
